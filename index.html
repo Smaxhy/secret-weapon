@@ -3,138 +3,179 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Hon'yaku — JP⇄EN</title>
-<meta name="theme-color" content="#0f0f14">
+<title>Hana · JP⇄EN</title>
+<meta name="description" content="Offline Japanese ⇄ English translator with a phrasebook, word book and flashcards.">
+<meta name="theme-color" content="#0d0820">
 <link rel="manifest" href="manifest.json">
-<link rel="icon" href="icons/icon.svg">
-<link rel="apple-touch-icon" href="icons/icon.svg">
+<link rel="icon" type="image/png" href="icons/favicon-64.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<style>
-:root{--bg:#0f0f14;--card:#1a1a22;--card2:#23232e;--tx:#f3f3f6;--mut:#9a9aab;--acc:#ff4d6d;--acc2:#ffb3c1;--ok:#3ddc97}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;padding-bottom:80px}
-header{position:sticky;top:0;z-index:5;background:rgba(15,15,20,.92);backdrop-filter:blur(8px);padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #26263a}
-header h1{font-size:18px;margin:0;flex:1}
-.pill{font-size:12px;padding:3px 9px;border-radius:99px;background:var(--card2);color:var(--mut)}
-.pill.on{background:#123b2a;color:var(--ok)}
-main{max-width:720px;margin:0 auto;padding:16px}
-.card{background:var(--card);border-radius:16px;padding:14px;margin-bottom:14px}
-.dir{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-weight:600}
-button{font:inherit;color:inherit;background:var(--card2);border:0;border-radius:12px;padding:10px 14px;cursor:pointer}
-button:active{transform:scale(.97)}
-.primary{background:var(--acc);color:#fff;font-weight:700}
-textarea{width:100%;min-height:90px;background:var(--card2);color:var(--tx);border:0;border-radius:12px;padding:12px;font:inherit;font-size:18px;resize:vertical}
-.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.out{margin-top:12px;background:var(--card2);border-radius:12px;padding:12px;min-height:60px}
-.jp{font-size:24px;font-weight:600}
-.ro{color:var(--acc2);font-size:14px}
-.sub{color:var(--mut);font-size:13px;margin-top:6px}
-.toggle{display:flex;background:var(--card2);border-radius:12px;padding:3px}
-.toggle button{background:none;padding:6px 12px;font-size:14px}
-.toggle button.on{background:var(--acc);color:#fff}
-.cats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.cat{display:flex;flex-direction:column;align-items:center;padding:12px 4px;font-size:12px;gap:4px}
-.cat span{font-size:26px}
-.cat.on{outline:2px solid var(--acc)}
-.ph{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid #2a2a38}
-.ph:last-child{border:0}
-.ph .t{flex:1;cursor:pointer}
-.ph .en{font-size:14px;color:var(--mut)}
-.ph .j{font-size:19px}
-.ic{background:none;padding:6px;font-size:18px}
-input[type=search]{width:100%;background:var(--card2);border:0;border-radius:12px;padding:12px;color:var(--tx);font:inherit;margin-bottom:10px}
-nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:#14141c;border-top:1px solid #26263a;padding-bottom:env(safe-area-inset-bottom)}
-nav button{flex:1;background:none;border-radius:0;padding:12px 0;font-size:13px;color:var(--mut)}
-nav button.on{color:var(--acc)}
-#show{display:none}
-#show.show-on{position:fixed;inset:0;background:#fff;color:#111;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
-#show .big{font-size:clamp(34px,9vw,72px);font-weight:700;line-height:1.3}
-#show .small{font-size:18px;color:#666;margin-top:16px}
-.note{font-size:12px;color:var(--mut)}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
-.chip{background:#2d2d3b;border-radius:8px;padding:3px 8px;font-size:13px}
-#fc{background:var(--card2);border-radius:16px;padding:28px 16px;text-align:center;cursor:pointer;min-height:180px}
-#fcFront{font-size:34px;font-weight:700}
-#fcBack{font-size:22px;margin-top:14px}
-#err{display:none;background:#5a1020;color:#fff;padding:10px 16px;font-size:13px}
-</style>
-<script>window.onerror=function(m,s,l){var e=document.getElementById('err');if(e){e.style.display='block';e.textContent='Error: '+m+' (line '+l+') — screenshot this & send it to Claude';}};</script>
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hana">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/app.css?v=5">
+<script>
+window.onerror = function (m, s, l) {
+  var e = document.getElementById("err");
+  if (e) { e.style.display = "block"; e.textContent = "Error: " + m + " (line " + l + ") — screenshot this & send it to Claude"; }
+};
+</script>
 </head>
 <body>
-<header>
-  <h1>🇯🇵 Hon'yaku <span style="color:var(--mut);font-weight:400">JP⇄EN</span></h1>
-  <span id="net" class="pill">offline</span>
+<canvas id="sakura" aria-hidden="true"></canvas>
+<div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+<div id="err"></div>
+
+<header class="top">
+  <button class="avatar" id="mascotBtn" aria-label="Hana"><div class="avatar-ring"></div><div class="mascot" id="mascotHead"></div></button>
+  <div class="brand">
+    <h1>Hana <span class="jp">はな</span></h1>
+    <p><span class="dot" id="netDot"></span><span id="netTxt">starting…</span></p>
+  </div>
+  <button class="icon-btn" id="settingsBtn" aria-label="Settings">
+    <svg viewBox="0 0 24 24" width="22" height="22"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2.4" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="10" cy="17" r="2.4" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+  </button>
+  <div class="bubble" id="bubble"></div>
 </header>
 
-<div id="err"></div>
-<main>
-<!-- TRANSLATE -->
-<section id="tab-tr">
-  <div class="card">
-    <div class="dir">
-      <span id="fromL">English</span>
-      <button id="swap" aria-label="swap">⇄</button>
-      <span id="toL">日本語</span>
+<main id="main">
+  <!-- TRANSLATE -->
+  <section class="page active" id="page-tr" data-tab="tr">
+    <div class="glass card tr-card">
+      <div class="langbar">
+        <div class="lang" id="fromL"><span class="flag">🇬🇧</span><span>English</span></div>
+        <button class="swap" id="swap" aria-label="Swap languages"><svg viewBox="0 0 24 24" width="20" height="20"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M7 7h11l-3-3M17 17H6l3 3"/></svg></button>
+        <div class="lang" id="toL"><span class="flag">🇯🇵</span><span>日本語</span></div>
+      </div>
+      <div class="input-wrap">
+        <textarea id="inp" rows="2" placeholder="Type anything… English or 日本語" autocomplete="off" autocapitalize="sentences"></textarea>
+        <div class="input-tools">
+          <button class="tool" id="mic" aria-label="Speak"><svg viewBox="0 0 24 24" width="20" height="20"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+          <button class="tool" id="paste" aria-label="Paste"><svg viewBox="0 0 24 24" width="20" height="20"><rect x="6" y="5" width="12" height="16" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 5V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+          <button class="tool" id="clr" aria-label="Clear"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
+        </div>
+      </div>
+      <div class="row between">
+        <div class="seg" id="tone"><i class="seg-thumb"></i><button data-v="casual">😎 Casual</button><button data-v="polite">🙇 Polite</button></div>
+        <button class="go" id="go"><span>Translate</span><svg viewBox="0 0 24 24" width="18" height="18"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
     </div>
-    <textarea id="inp" placeholder="Type or paste anything… (auto-detects language)"></textarea>
-    <div class="row">
-      <button class="primary" id="go">Translate</button>
-      <button id="mic" title="Speak">🎤</button>
-      <div class="toggle" id="tone"><button data-t="casual" class="on">Casual</button><button data-t="polite">Polite</button></div>
-      <button id="clr">✕</button>
-    </div>
-    <div id="out" class="out"><span class="note">Translation shows here. Phrasebook works offline; full sentences use the internet when available.</span></div>
-    <div class="row" id="outBtns" style="display:none">
-      <button id="say">🔊 Speak</button><button id="copy">📋 Copy</button><button id="showBtn">🖥 Show</button><button id="fav">⭐ Save</button><button id="addWord">📒 Word book</button>
-    </div>
-  </div>
-  <div class="note" id="count" style="margin:-4px 0 10px 4px"></div>
-  <div class="card"><b>Quick picks</b><div class="cats" id="quickCats" style="margin-top:10px"></div></div>
-</section>
 
-<!-- PHRASES -->
-<section id="tab-ph" >
-  <input type="search" id="q" placeholder="Search all phrases (EN, 日本語, romaji)…">
-  <div class="cats" id="cats"></div>
-  <div class="row"><div class="toggle" id="tone2"><button data-t="casual" class="on">Casual</button><button data-t="polite">Polite</button></div></div>
-  <div class="card" id="list" style="margin-top:12px"></div>
-</section>
-
-<!-- WORDS -->
-<section id="tab-wd">
-  <input type="search" id="wq" placeholder="Search the word book (EN, 日本語, romaji)…">
-  <div class="card">
-    <b>🧠 Practice</b> <span class="note">Tap the card to flip. Words you miss come back more often.</span>
-    <button id="fcStart" class="primary" style="display:block;margin-top:10px;width:100%">Start flashcards for this category</button>
-    <div id="fcWrap" style="display:none;margin-top:10px">
-      <div id="fc"><div id="fcFront"></div><div id="fcHint" class="note" style="margin-top:12px">tap to reveal</div><div id="fcBack"></div></div>
-      <div class="row" id="fcBtns" style="display:none"><button id="fcNo" style="flex:1">❌ Didn't know</button><button id="fcYes" class="primary" style="flex:1">✅ Knew it</button></div>
-      <div class="note" id="fcStat" style="margin-top:8px"></div>
+    <div id="result" class="glass card result empty">
+      <div class="empty-state">
+        <div class="mascot mini" data-mascot></div>
+        <p><b>Type anything</b> — sentences, slang, menus.<br>Works <b>offline</b> with my built-in dictionary ✨</p>
+      </div>
     </div>
-  </div>
-  <div class="cats" id="wcats"></div>
-  <div class="card" id="wlist" style="margin-top:12px"></div>
-</section>
 
-<!-- SAVED -->
-<section id="tab-sv" >
-  <div class="card"><b>⭐ Saved</b><div id="saved"></div></div>
-  <div class="card"><b>🕘 History</b> <button class="ic" id="clrH">🗑</button><div id="hist"></div></div>
-</section>
+    <div class="section-title"><span>Quick phrases</span><button class="link" data-goto="ph">See all →</button></div>
+    <div class="hscroll" id="quickCats"></div>
+
+    <div class="section-title" id="recentTitle"><span>Recent</span><button class="link" data-goto="sv">History →</button></div>
+    <div id="recent" class="list"></div>
+  </section>
+
+  <!-- PHRASES -->
+  <section class="page" id="page-ph" data-tab="ph">
+    <h2 class="page-title">Phrasebook <span class="jp">フレーズ</span></h2>
+    <div class="search"><svg viewBox="0 0 24 24" width="18" height="18"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input type="search" id="q" placeholder="Search phrases (EN, 日本語, romaji)"></div>
+    <div class="chips-row" id="cats"></div>
+    <div id="list" class="list"></div>
+  </section>
+
+  <!-- WORDS -->
+  <section class="page" id="page-wd" data-tab="wd">
+    <h2 class="page-title">Word book <span class="jp">単語帳</span></h2>
+    <div class="search"><svg viewBox="0 0 24 24" width="18" height="18"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 20l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input type="search" id="wq" placeholder="Search 56,000+ words offline…"></div>
+    <div class="glass card practice">
+      <div class="practice-head">
+        <div><b>🧠 Practice</b><p class="mut" id="fcStat">Flashcards for the selected category</p></div>
+        <div class="ring" id="fcRing"><svg viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.5" class="ring-bg"/><circle cx="18" cy="18" r="15.5" class="ring-fg" id="ringFg"/></svg><span id="ringTxt">0%</span></div>
+      </div>
+      <div class="flash" id="flash">
+        <div class="flash-inner" id="flashInner">
+          <div class="flash-face front"><div class="fc-big" id="fcFront">Ready?</div><div class="mut small" id="fcHint">tap start, then tap the card to flip</div></div>
+          <div class="flash-face back"><div class="fc-big" id="fcBack"></div><div class="fc-ro" id="fcBackRo"></div></div>
+        </div>
+      </div>
+      <div class="row gap" id="fcBtns">
+        <button class="btn ghost grow" id="fcNo">😵 Again</button>
+        <button class="btn grad grow" id="fcYes">✅ Knew it</button>
+      </div>
+      <button class="btn grad block" id="fcStart">▶ Start flashcards</button>
+    </div>
+    <div class="chips-row" id="wcats"></div>
+    <div id="wlist" class="list"></div>
+  </section>
+
+  <!-- SAVED -->
+  <section class="page" id="page-sv" data-tab="sv">
+    <h2 class="page-title">Saved <span class="jp">保存</span></h2>
+    <div class="section-title"><span>⭐ Favourites</span></div>
+    <div id="saved" class="list"></div>
+    <div class="section-title"><span>🕘 History</span><button class="link" id="clrH">Clear</button></div>
+    <div id="hist" class="list"></div>
+  </section>
 </main>
 
-<nav>
-  <button data-tab="tr" class="on">🔤<br>Translate</button>
-  <button data-tab="ph">📚<br>Phrases</button>
-  <button data-tab="wd">📒<br>Words</button>
-  <button data-tab="sv">⭐<br>Saved</button>
+<nav class="tabbar" id="tabbar">
+  <i class="tab-ind" id="tabInd"></i>
+  <button data-tab="tr" class="on"><svg viewBox="0 0 24 24"><path d="M4 5h9M8.5 3v2M6 5c0 4 3 7 6 8M11 5c0 3-3 7-7 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M13 21l4-9 4 9M14.5 18h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Translate</span></button>
+  <button data-tab="ph"><svg viewBox="0 0 24 24"><path d="M4 6a2 2 0 0 1 2-2h12v14H6a2 2 0 0 0-2 2z M4 20V6M8 8h6M8 11h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Phrases</span></button>
+  <button data-tab="wd"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 3h11a2 2 0 0 1 2 2v12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Words</span></button>
+  <button data-tab="sv"><svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 16.8 6.6 19.7l1.1-6.1L3.2 9.4l6.1-.8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span>Saved</span></button>
 </nav>
 
-<div id="show" ><div class="big" id="showBig"></div><div class="small" id="showSmall"></div><button style="margin-top:30px;background:#eee" id="showX">Close</button></div>
+<!-- Big "show to staff" screen -->
+<div id="show" class="overlay" role="dialog" aria-modal="true">
+  <div class="show-card">
+    <div class="show-tag">📢 こちらをご覧ください <span>· please read</span></div>
+    <div class="show-big" id="showBig"></div>
+    <div class="show-ro" id="showRo"></div>
+    <div class="show-en" id="showEn"></div>
+    <div class="row center gap">
+      <button class="btn grad" id="showSay">🔊 Play</button>
+      <button class="btn ghost" id="showX">Close</button>
+    </div>
+  </div>
+</div>
 
-<script src="phrases.js?v=3"></script>
-<script src="words.js?v=3"></script>
-<script src="app.js?v=3"></script>
-<script>if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(function(){});</script>
+<!-- Bottom sheets -->
+<div class="backdrop" id="backdrop"></div>
+<div class="sheet" id="settings" role="dialog" aria-modal="true" aria-label="Settings">
+  <div class="grabber"></div>
+  <h3>Settings</h3>
+  <div class="set"><span>Speaking style<small>How Hana talks for you</small></span>
+    <div class="seg small" id="setTone"><i class="seg-thumb"></i><button data-v="casual">Casual</button><button data-v="polite">Polite</button></div></div>
+  <div class="set"><span>How you say "I"<small>Used when "I" can't be dropped</small></span>
+    <div class="pills" id="setMe"><button data-v="俺">俺</button><button data-v="僕">僕</button><button data-v="私">私</button><button data-v="うち">うち</button></div></div>
+  <div class="set"><span>Translation engine<small>Offline always works. Auto also asks the internet when you're online.</small></span>
+    <div class="seg small" id="setMode"><i class="seg-thumb"></i><button data-v="auto">Auto</button><button data-v="offline">Offline</button></div></div>
+  <label class="set"><span>Voice speed<small id="rateTxt">0.9×</small></span><input type="range" id="setRate" min="0.5" max="1.3" step="0.1"></label>
+  <label class="set"><span>Animations<small>Petals, sparkles and motion</small></span><input type="checkbox" class="switch" id="setAnim"></label>
+  <label class="set"><span>Hana's reactions<small>Speech bubbles from the mascot</small></span><input type="checkbox" class="switch" id="setChat"></label>
+  <div class="set info"><span>Offline dictionary<small id="dictInfo">loading…</small></span></div>
+  <div class="set info"><span>Install<small>iPhone: Share → <b>Add to Home Screen</b>. Android: menu → <b>Install app</b>. It then opens like a real app, even offline.</small></span></div>
+  <div class="row gap"><button class="btn ghost grow" id="resetBtn">Reset saved data</button><button class="btn grad grow" id="closeSettings">Done</button></div>
+  <p class="credits">Dictionary: <a href="https://www.edrdg.org/wiki/index.php/JMdict-EDICT_Dictionary_Project" target="_blank" rel="noopener">JMdict</a> © EDRDG, CC BY-SA 4.0. Auto mode uses Google Translate when online.</p>
+</div>
+<div class="sheet" id="wordSheet" role="dialog" aria-modal="true" aria-label="Word">
+  <div class="grabber"></div>
+  <div class="word-jp" id="wsJp"></div>
+  <div class="word-ro" id="wsRo"></div>
+  <div class="word-en" id="wsEn"></div>
+  <div class="row gap"><button class="btn ghost grow" id="wsSay">🔊 Listen</button><button class="btn ghost grow" id="wsShow">🖥 Show</button><button class="btn grad grow" id="wsAdd">📒 Add</button></div>
+</div>
+
+<div id="toast"></div>
+<div id="loader"><div class="ld-bar"><i id="ldFill"></i></div><span id="ldTxt">Loading dictionary…</span></div>
+
+<script src="js/phrases.js?v=5"></script>
+<script src="js/words.js?v=5"></script>
+<script src="js/engine.js?v=5"></script>
+<script src="js/app.js?v=5"></script>
 </body>
 </html>
