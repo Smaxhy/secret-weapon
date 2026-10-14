@@ -29,7 +29,7 @@ function setTone(t) {
   renderList();
 }
 document.querySelectorAll(".toggle button").forEach(b => b.onclick = () => { setTone(b.dataset.t); if ($("#inp").value.trim()) translate(); });
-setTone(tone);
+
 
 // ---------- direction ----------
 function setDir(d) {
@@ -236,5 +236,6 @@ function tab(t) {
 }
 document.querySelectorAll("nav button").forEach(b => b.onclick = () => tab(b.dataset.tab));
 
+setTone(tone);
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
 })();
