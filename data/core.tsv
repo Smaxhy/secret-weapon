@@ -1,0 +1,727 @@
+# Hand-picked everyday English -> Japanese choices. They override the automatic JMdict pick.
+# key<TAB>surface[@reading][#pos]   (reading/pos are looked up in JMdict when omitted)
+# pos "st" = state verb used in past tense for "I am X" (tired -> 疲れた)
+to eat	食べる
+to drink	飲む
+to go	行く
+to come	来る@くる
+to return	帰る@かえる
+to go back	帰る@かえる
+to go home	帰る@かえる
+to come back	戻る@もどる
+to buy	買う
+to sell	売る
+to see	見る@みる
+to watch	見る@みる
+to look	見る@みる
+to look at	見る@みる
+to show	見せる
+to hear	聞く
+to listen	聞く
+to listen to	聞く
+to ask	聞く
+to say	言う
+to tell	言う
+to speak	話す
+to talk	話す
+to read	読む
+to write	書く
+to know	知る
+to understand	分かる@わかる
+to think	思う
+to need	要る@いる
+to make	作る
+to do	する
+to hang out	遊ぶ
+to play	遊ぶ
+to sleep	寝る
+to wake up	起きる
+to get up	起きる
+to walk	歩く
+to run	走る
+to wait	待つ
+to wait for	待つ
+to help	手伝う
+to pay	払う
+to open	開ける
+to close	閉める
+to shut	閉める
+to take	取る
+to give	あげる#v1
+to use	使う
+to try	やってみる@やって|みる#v1
+to meet	会う
+to see someone	会う
+to enter	入る@はいる
+to go in	入る@はいる
+to get in	入る@はいる
+to leave	出る@でる
+to go out	出かける
+to exit	出る@でる
+to stop	止める@とめる
+to find	見つける
+to lose	なくす#v5s
+to forget	忘れる
+to remember	覚える
+to learn	習う
+to study	勉強する
+to work	働く
+to rest	休む
+to dance	踊る
+to sing	歌う
+to laugh	笑う
+to cry	泣く
+to call	電話する
+to choose	選ぶ
+to pick	選ぶ
+to cook	料理する
+to drive	運転する
+to swim	泳ぐ
+to live	住む
+to stay	泊まる
+to sit	座る
+to sit down	座る
+to stand	立つ
+to stand up	立つ
+to change	変える
+to send	送る
+to teach	教える
+to carry	運ぶ
+to bring	持ってくる@もって|くる#vk
+to borrow	借りる
+to rent	借りる
+to lend	貸す
+to book	予約する
+to reserve	予約する
+to order	注文する
+to recommend	すすめる#v1
+to check	確認する
+to get off	降りる@おりる
+to get on	乗る
+to ride	乗る
+to arrive	着く
+to get to	着く
+to start	始める
+to begin	始める
+to finish	終わる
+to end	終わる
+to win	勝つ
+to smoke	吸う
+to kiss	キスする
+to hug	ハグする
+to date	付き合う
+to go out with	付き合う
+to love	愛する
+to feel	感じる
+to look for	探す
+to search	探す
+to try on	試着する
+to pick up	拾う
+to put	置く
+to wear	着る@きる
+to put on	着る@きる
+to clean	掃除する
+to wash	洗う
+to fix	直す
+to repair	直す
+to break	壊す
+to die	死ぬ
+to kill	殺す
+to fly	飛ぶ
+to travel	旅行する
+to visit	行く
+to shop	買い物する@かいもの|する#vs-i
+to go shopping	買い物する@かいもの|する#vs-i
+to sightsee	観光する
+to exchange	両替する
+to cancel	キャンセルする
+to charge	充電する
+to download	ダウンロードする
+to post	投稿する
+to text	連絡する
+to message	連絡する
+to contact	連絡する
+to get drunk	酔う
+to throw up	吐く
+to vomit	吐く
+to get lost	迷う
+to hurry	急ぐ
+to worry	心配する
+to believe	信じる
+to promise	約束する
+to explain	説明する
+to translate	翻訳する
+to hold	持つ
+to have	ある@ある
+to be	いる@いる
+to exist	ある@ある
+to get	もらう
+to receive	もらう
+to keep	取っておく@とって|おく#v5k
+to like	好む
+to hate	嫌う
+to want	欲しがる
+to sleep with	寝る
+to party	パーティーする@ぱーてぃー|する#vs-i
+to climb	登る@のぼる
+to jump	跳ぶ
+to cut	切る@きる
+to smell	におう
+to taste	味わう
+to touch	触る
+to push	押す
+to pull	引く
+to throw	投げる
+to catch	捕まえる
+to fall	落ちる
+to drop	落とす
+to grow	育つ
+to move	動く
+to turn	曲がる
+to turn left	左に曲がる@ひだり|に|まがる#v5r
+to turn right	右に曲がる@みぎ|に|まがる#v5r
+to cross	渡る
+to sell out	売り切れる
+to marry	結婚する
+to get married	結婚する
+to celebrate	祝う
+to relax	リラックスする
+to enjoy	楽しむ
+to join	参加する
+to follow	ついて行く@ついて|いく#v5k-s
+to share	シェアする
+to spend	使う
+to save	貯める@ためる#v1
+to choose	選ぶ
+to decide	決める
+to plan	計画する
+to prepare	準備する
+to clean up	片付ける
+to shower	シャワーを浴びる@しゃわー|を|あびる#v1
+to take a shower	シャワーを浴びる@しゃわー|を|あびる#v1
+to take a picture	写真を撮る@しゃしん|を|とる#v5r
+to take a photo	写真を撮る@しゃしん|を|とる#v5r
+to take photos	写真を撮る@しゃしん|を|とる#v5r
+to take pictures	写真を撮る@しゃしん|を|とる#v5r
+to take a bath	お風呂に入る@おふろ|に|はいる#v5r
+to take medicine	薬を飲む@くすり|を|のむ#v5m
+to have fun	楽しむ
+to have a good time	楽しむ
+good	いい@いい#adj-ix
+nice	いい@いい#adj-ix
+fine	大丈夫
+okay	大丈夫
+ok	大丈夫
+alright	大丈夫
+bad	悪い
+big	大きい
+large	大きい
+small	小さい
+little	小さい
+hot	暑い@あつい
+cold	寒い@さむい
+warm	暖かい@あたたかい
+new	新しい
+old	古い
+young	若い
+long	長い
+short	短い
+tall	高い@たかい
+high	高い@たかい
+expensive	高い@たかい
+cheap	安い
+delicious	美味しい@おいしい
+tasty	うまい@うまい#adj-i
+yummy	うまい@うまい#adj-i
+good food	うまい@うまい#adj-i
+spicy	辛い@からい
+sweet	甘い
+salty	しょっぱい@しょっぱい#adj-i
+sour	酸っぱい
+bitter	苦い@にがい
+gross	まずい
+disgusting	気持ち悪い
+fun	楽しい
+interesting	面白い@おもしろい
+funny	面白い@おもしろい
+boring	つまらない
+cute	かわいい@かわいい#adj-i
+beautiful	きれい@きれい#adj-na
+pretty	きれい@きれい#adj-na
+handsome	かっこいい@かっこいい#adj-ix
+cool	かっこいい@かっこいい#adj-ix
+scary	怖い@こわい
+easy	簡単
+difficult	難しい
+hard	難しい
+busy	忙しい
+free	暇
+quiet	静か
+noisy	うるさい
+loud	うるさい
+clean	きれい@きれい#adj-na
+dirty	汚い@きたない
+fast	速い@はやい
+quick	速い@はやい
+early	早い@はやい
+slow	遅い@おそい
+late	遅い@おそい
+near	近い
+close	近い
+far	遠い
+happy	嬉しい@うれしい
+glad	嬉しい@うれしい
+sad	悲しい
+lonely	寂しい@さびしい
+strong	強い
+weak	弱い
+heavy	重い
+bright	明るい
+dark	暗い
+kind	優しい@やさしい
+sweet person	優しい@やさしい
+great	すごい@すごい#adj-i
+amazing	すごい@すごい#adj-i
+awesome	すごい@すごい#adj-i
+incredible	すごい@すごい#adj-i
+crazy	やばい@やばい#adj-i
+insane	やばい@やばい#adj-i
+dangerous	危ない@あぶない
+safe	安全
+sick	気分が悪い@きぶん|が|わるい#adj-i
+ill	気分が悪い@きぶん|が|わるい#adj-i
+hungry	お腹すく@おなか|すく#st
+starving	お腹すく@おなか|すく#st
+thirsty	喉渇く@のど|かわく#st
+tired	疲れる@つかれる#st
+exhausted	疲れる@つかれる#st
+drunk	酔う@よう#st
+lost	迷う@まよう#st
+full	お腹いっぱい@おなか|いっぱい#adj-na
+sleepy	眠い
+important	大切
+famous	有名
+popular	人気@にんき#adj-no
+sexy	セクシー
+same	同じ@おなじ#adj-na
+different	違う@ちがう#v5u
+wrong	違う@ちがう#v5u
+right	正しい
+correct	正しい
+true	本当@ほんとう#adj-na
+real	本物
+favorite	一番好き@いちばん|すき#adj-na
+favourite	一番好き@いちばん|すき#adj-na
+painful	痛い
+sore	痛い
+cozy	居心地がいい@いごこち|が|いい#adj-ix
+comfortable	快適
+convenient	便利
+inconvenient	不便
+perfect	完璧
+special	特別
+weird	変
+strange	変
+nervous	緊張する
+excited	ワクワクする@わくわく|する#vs-i
+bored	退屈
+angry	怒る@おこる#st
+surprised	驚く@おどろく#st
+married	結婚する#st
+single	独身
+open	開いてる@あいてる#v1
+closed	閉まる@しまる#st
+sold out	売り切れる@うりきれる#st
+red	赤い
+blue	青い
+green	緑
+yellow	黄色い
+black	黒い
+white	白い
+brown	茶色い@ちゃいろい#adj-i
+pink	ピンク
+purple	紫
+orange	オレンジ
+gray	グレー
+grey	グレー
+gold	金色@きんいろ
+silver	銀色@ぎんいろ
+navy	紺
+beige	ベージュ
+light blue	水色
+friend	友達
+friends	友達
+best friend	親友
+toilet	トイレ
+bathroom	トイレ
+restroom	トイレ
+station	駅
+train station	駅
+chicken	鶏肉@とりにく
+tomorrow	明日@あした
+today	今日@きょう
+yesterday	昨日@きのう
+tonight	今夜
+phone	スマホ
+cellphone	スマホ
+car	車
+money	お金
+food	食べ物
+bag	カバン@かばん#n
+shop	店@みせ
+store	店@みせ
+restaurant	レストラン
+convenience store	コンビニ
+menu	メニュー
+bill	お会計@おかいけい
+check	お会計@おかいけい
+ticket	切符
+map	地図
+airport	空港
+bus	バス
+taxi	タクシー
+subway	地下鉄
+metro	地下鉄
+place	場所
+time	時間
+day	日@ひ
+week	週
+month	月@つき
+year	年@とし
+morning	朝
+night	夜
+evening	夕方
+afternoon	午後
+home	家@いえ
+house	家@いえ
+school	学校
+work	仕事
+job	仕事
+city	街
+town	町
+country	国
+Japan	日本@にほん
+Tokyo	東京
+Osaka	大阪
+Kyoto	京都
+America	アメリカ
+the Netherlands	オランダ
+Holland	オランダ
+person	人@ひと
+people	人@ひと
+man	男
+woman	女
+guy	男
+girl	女の子
+boy	男の子
+boyfriend	彼氏
+girlfriend	彼女
+mom	お母さん
+mother	お母さん
+dad	お父さん
+father	お父さん
+family	家族
+brother	兄弟
+sister	姉妹
+name	名前
+picture	写真
+photo	写真
+question	質問
+problem	問題
+doctor	医者
+hospital	病院
+pharmacy	薬局
+medicine	薬
+police	警察
+passport	パスポート
+luggage	荷物
+cash	現金
+card	カード
+credit card	クレジットカード
+receipt	レシート
+plastic bag	袋@ふくろ
+size	サイズ
+color	色@いろ
+colour	色@いろ
+clothes	服
+shirt	シャツ
+t-shirt	Tシャツ@てぃーしゃつ#n
+pants	ズボン
+trousers	ズボン
+jeans	ジーンズ
+shoes	靴
+shoe	靴
+sneakers	スニーカー
+hat	帽子
+cap	キャップ
+jacket	ジャケット
+hoodie	パーカー
+dress	ワンピース
+skirt	スカート
+socks	靴下
+glasses	メガネ@めがね#n
+sunglasses	サングラス
+wifi	Wi-Fi@わいふぁい#n
+wi-fi	Wi-Fi@わいふぁい#n
+password	パスワード
+charger	充電器@じゅうでんき#n
+battery	バッテリー
+internet	ネット
+water	水@みず
+beer	ビール
+sake	日本酒
+coffee	コーヒー
+tea	お茶
+green tea	緑茶
+juice	ジュース
+milk	牛乳
+wine	ワイン
+alcohol	お酒@おさけ#n
+drink	飲み物
+drinks	飲み物
+breakfast	朝ご飯@あさごはん
+lunch	昼ご飯@ひるごはん
+dinner	晩ご飯@ばんごはん
+rice	ご飯@ごはん
+meat	肉
+pork	豚肉
+beef	牛肉
+fish	魚
+egg	卵
+eggs	卵
+vegetable	野菜
+vegetables	野菜
+fruit	果物
+snack	お菓子
+snacks	お菓子
+candy	お菓子
+dessert	デザート
+ice cream	アイス
+cake	ケーキ
+bread	パン
+ramen	ラーメン
+sushi	寿司
+noodles	麺
+soup	スープ
+salad	サラダ
+fries	ポテト
+french fries	ポテト
+burger	ハンバーガー
+pizza	ピザ
+curry	カレー
+steak	ステーキ
+cheese	チーズ
+chocolate	チョコ
+game	ゲーム
+games	ゲーム
+movie	映画
+music	音楽
+song	歌@うた
+party	パーティー
+club	クラブ
+bar	バー
+karaoke	カラオケ
+beach	ビーチ
+sea	海
+ocean	海
+mountain	山@やま
+temple	お寺@おてら#n
+shrine	神社
+park	公園
+street	道
+road	道
+way	道
+left	左
+right side	右
+north	北
+south	南
+east	東
+west	西
+weather	天気
+rain	雨
+snow	雪@ゆき
+sun	太陽
+hot spring	温泉
+cat	猫
+dog	犬
+anime	アニメ
+manga	漫画
+cigarette	タバコ
+cigarettes	タバコ
+lighter	ライター
+umbrella	傘
+key	鍵
+door	ドア
+window	窓
+seat	席
+table	テーブル
+chair	椅子
+bed	ベッド
+towel	タオル
+shower	シャワー
+bath	お風呂@おふろ#n
+elevator	エレベーター
+stairs	階段
+exit	出口
+entrance	入口
+price	値段
+discount	割引
+sale	セール
+gift	プレゼント
+present	プレゼント
+souvenir	お土産@おみやげ
+language	言葉
+word	言葉
+thing	もの@もの#n
+something	何か@なにか#n
+everything	全部
+everyone	みんな@みんな#n
+everybody	みんな@みんな#n
+someone	誰か@だれか#n
+somebody	誰か@だれか#n
+anything	何か@なにか#n
+one	一つ@ひとつ#n
+English	英語
+Japanese	日本語
+Chinese	中国語
+Korean	韓国語
+Dutch	オランダ語@おらんだご#n
+student	学生
+teacher	先生
+hotel	ホテル
+room	部屋
+sauce	ソース
+barbecue	バーベキュー
+barbeque	バーベキュー
+bbq	バーベキュー
+barbecue sauce	バーベキューソース
+barbeque sauce	バーベキューソース
+bbq sauce	バーベキューソース
+soy sauce	醤油
+spoon	スプーン
+fork	フォーク
+knife	ナイフ
+chopsticks	箸@はし
+plate	皿
+cup	コップ
+glass	コップ
+bottle	ボトル
+tissue	ティッシュ
+napkin	ナプキン
+mask	マスク
+allergy	アレルギー
+fever	熱@ねつ
+headache	頭痛
+stomach	お腹@おなか
+head	頭@あたま
+hand	手@て
+foot	足@あし
+leg	足@あし
+eye	目@め
+face	顔
+hair	髪
+heart	心
+body	体
+life	人生
+love	愛
+trip	旅行
+vacation	休み
+holiday	休み
+plan	予定
+reservation	予約
+appointment	予約
+schedule	予定
+idea	アイデア
+number	番号
+phone number	電話番号
+address	住所
+email	メール
+message	メッセージ
+Instagram	インスタ
+LINE	LINE@らいん#n
+cash register	レジ
+line queue	列
+queue	列
+platform	ホーム
+ticket gate	改札
+bus stop	バス停
+taxi stand	タクシー乗り場@たくしー|のりば#n
+bike	自転車
+bicycle	自転車
+boat	船
+plane	飛行機
+flight	便@びん
+gate	ゲート
+hostel	ホステル
+apartment	アパート
+supermarket	スーパー
+mall	ショッピングモール
+department store	デパート
+drugstore	ドラッグストア
+atm	ATM@えーてぃーえむ#n
+bank	銀行
+post office	郵便局
+museum	博物館
+castle	城@しろ
+tower	タワー
+view	景色
+night view	夜景
+festival	祭り
+fireworks	花火
+cherry blossoms	桜
+cherry blossom	桜
+picture spot	写真スポット@しゃしん|すぽっと#n
+allergic	アレルギー
+shrimp	エビ@えび#n
+to worry	心配する
+to be careful	気をつける@き|を|つける#v1
+careful	気をつける@き|を|つける#v1
+to miss	逃す
+to rain	雨が降る@あめ|が|ふる#v5r
+to snow	雪が降る@ゆき|が|ふる#v5r
+to come in	入る@はいる
+to look around	見て回る@みて|まわる#v5r
+to sit here	ここに座る@ここ|に|すわる#v5r
+wallet	財布
+Shibuya	渋谷@しぶや#n
+Shinjuku	新宿@しんじゅく#n
+Harajuku	原宿@はらじゅく#n
+Akihabara	秋葉原@あきはばら#n
+Asakusa	浅草@あさくさ#n
+Ikebukuro	池袋@いけぶくろ#n
+Ginza	銀座@ぎんざ#n
+Roppongi	六本木@ろっぽんぎ#n
+Ueno	上野@うえの#n
+Shinagawa	品川@しながわ#n
+Yokohama	横浜@よこはま#n
+Nara	奈良@なら#n
+Hiroshima	広島@ひろしま#n
+Hokkaido	北海道@ほっかいどう#n
+Okinawa	沖縄@おきなわ#n
+Fukuoka	福岡@ふくおか#n
+Nagoya	名古屋@なごや#n
+Sapporo	札幌@さっぽろ#n
+Kobe	神戸@こうべ#n
+Mount Fuji	富士山@ふじさん#n
+Mt Fuji	富士山@ふじさん#n
+Dotonbori	道頓堀@どうとんぼり#n
+Namba	難波@なんば#n
+Umeda	梅田@うめだ#n
+Kamakura	鎌倉@かまくら#n
+Hakone	箱根@はこね#n
+Nikko	日光@にっこう#n
+Kanazawa	金沢@かなざわ#n
+Sendai	仙台@せんだい#n
+Japanese food	和食
+netherlands	オランダ
+to become	なる@なる#v5r
+to get	もらう
+style	スタイル
+late	遅れる@おくれる#st
+first time	初めて@はじめて#adj-no
+halal	ハラール
+vegetarian food	ベジタリアン料理@べじたりあん|りょうり#n
+sim card	SIMカード@しむ|かーど#n
+sim	SIM@しむ#n
+to take time	かかる@かかる#v5r
+headache	頭痛@ずつう#n
