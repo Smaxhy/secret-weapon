@@ -160,15 +160,3 @@ window.PHRASES = {
   ]},
 };
 
-// Word dictionary for offline word-by-word fallback: english -> [jp, romaji]
-window.DICT = {
-  i:["俺/私","ore/watashi"], you:["君/あなた","kimi/anata"], we:["俺たち","oretachi"], he:["彼","kare"], she:["彼女","kanojo"], they:["あいつら","aitsura"],
-  this:["これ","kore"], that:["それ","sore"], here:["ここ","koko"], there:["そこ","soko"], what:["何","nani"], where:["どこ","doko"], when:["いつ","itsu"], who:["誰","dare"], why:["なんで","nande"], how:["どう","dou"],
-  want:["欲しい","hoshii"], like:["好き","suki"], love:["大好き","daisuki"], go:["行く","iku"], come:["来る","kuru"], eat:["食べる","taberu"], drink:["飲む","nomu"], buy:["買う","kau"], see:["見る","miru"], look:["見る","miru"], know:["知ってる","shitteru"], understand:["わかる","wakaru"], need:["必要","hitsuyou"], have:["ある/持ってる","aru/motteru"], is:["だ","da"], are:["だ","da"], am:["だ","da"],
-  good:["いい","ii"], bad:["悪い","warui"], big:["大きい","ookii"], small:["小さい","chiisai"], hot:["暑い/熱い","atsui"], cold:["寒い/冷たい","samui/tsumetai"], cheap:["安い","yasui"], expensive:["高い","takai"], delicious:["美味しい","oishii"], tasty:["うまい","umai"], cute:["かわいい","kawaii"], cool:["かっこいい","kakkoii"], fun:["楽しい","tanoshii"], tired:["疲れた","tsukareta"], hungry:["腹減った","hara hetta"], spicy:["辛い","karai"], sweet:["甘い","amai"], new:["新しい","atarashii"], old:["古い","furui"], fast:["速い","hayai"], slow:["遅い","osoi"], far:["遠い","tooi"], near:["近い","chikai"],
-  water:["水","mizu"], beer:["ビール","biiru"], coffee:["コーヒー","koohii"], tea:["お茶","ocha"], rice:["ご飯","gohan"], meat:["肉","niku"], chicken:["鶏肉/チキン","toriniku/chikin"], pork:["豚肉","butaniku"], beef:["牛肉","gyuuniku"], fish:["魚","sakana"], egg:["卵","tamago"], ramen:["ラーメン","raamen"], sushi:["寿司","sushi"], food:["食べ物","tabemono"], menu:["メニュー","menyuu"],
-  toilet:["トイレ","toire"], bathroom:["トイレ","toire"], station:["駅","eki"], train:["電車","densha"], bus:["バス","basu"], taxi:["タクシー","takushii"], hotel:["ホテル","hoteru"], airport:["空港","kuukou"], shop:["店","mise"], store:["店","mise"], money:["お金","okane"], phone:["スマホ","sumaho"], ticket:["切符","kippu"], map:["地図","chizu"],
-  friend:["友達","tomodachi"], girl:["女の子","onna no ko"], guy:["男","otoko"], today:["今日","kyou"], tomorrow:["明日","ashita"], yesterday:["昨日","kinou"], now:["今","ima"], later:["後で","atode"], yes:["うん","un"], no:["ううん","uun"], please:["お願い","onegai"], thanks:["ありがと","arigato"], sorry:["ごめん","gomen"], very:["めっちゃ","meccha"], really:["マジで","maji de"],
-  shirt:["シャツ","shatsu"], shoes:["靴","kutsu"], pants:["ズボン","zubon"], jacket:["ジャケット","jaketto"], size:["サイズ","saizu"], color:["色","iro"], colour:["色","iro"],
-  red:["赤","aka"], blue:["青","ao"], green:["緑","midori"], yellow:["黄色","kiiro"], black:["黒","kuro"], white:["白","shiro"], pink:["ピンク","pinku"], purple:["紫","murasaki"], brown:["茶色","chairo"], gray:["グレー","guree"], grey:["グレー","guree"], orange:["オレンジ","orenji"],
-};
