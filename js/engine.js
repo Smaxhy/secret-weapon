@@ -21,6 +21,7 @@ E.load = function (data) {
   }
 };
 E.ready = function () { return !!D; };
+E.size = function () { return D ? D.e.length : 0; };
 
 function ent(i) {
   if (CACHE[i]) return CACHE[i];
@@ -411,6 +412,12 @@ function isVerbStart(t, i) {
   return !lookupNoun([t[i]]);
 }
 
+var UNIT = { // surface -> [unit, reading after a number, readings for 1-10]
+  "分": ["分", "ふん", ["", "いっぷん", "にふん", "さんぷん", "よんぷん", "ごふん", "ろっぷん", "ななふん", "はっぷん", "きゅうふん", "じゅっぷん"]],
+  "時間": ["時間", "じかん"], "秒": ["秒", "びょう"], "年": ["年", "ねん"], "週": ["週間", "しゅうかん"], "週間": ["週間", "しゅうかん"], "月": ["ヶ月", "かげつ"], "ヶ月": ["ヶ月", "かげつ"], "円": ["円", "えん"], "ドル": ["ドル", "どる"], "歳": ["歳", "さい"],
+  "日": ["日", "にち", ["", "いちにち", "ふつか", "みっか", "よっか", "いつか", "むいか", "なのか", "ようか", "ここのか", "とおか"]],
+  "泊": ["泊", "はく", ["", "いっぱく", "にはく", "さんぱく", "よんぱく", "ごはく", "ろっぱく", "ななはく", "はっぱく", "きゅうはく", "じゅっぱく"]]
+};
 function numJP(n, noun, casual) {
   var g = noun && noun.w ? firstGloss(noun) : "";
   if (/^(person|people|guy|friend|friends)$/.test(g) || noun === "people") return n <= 10 ? { w: NUMJ[n] + "人", r: NINR[n] } : { w: n + "人", r: n + "にん" };
@@ -456,7 +463,13 @@ function renderNP(np, casual) {
     if (nounParts.length && /[㐀-鿿]$/.test(w) && /^[㐀-鿿]/.test(p.w) && !p.w.match(/^[゠-ヿ]/)) { /* kanji+kanji compounds join directly */ }
     push(x); nounParts.push(p);
   });
-  if (np.num && !np.noNum) push(numJP(np.num, np.parts[0], casual));
+  if (np.num && !np.noNum) {
+    var head = np.parts[np.parts.length - 1], un = head && head.w && UNIT[head.w];
+    if (un) { // time / money units take the number directly: 10分, 2時間, 3泊
+      w = w.slice(0, w.length - head.w.length); r = r.replace(/\|?[^|]*$/, ""); parts.pop();
+      push({ w: np.num + un[0], r: (un[2] && np.num <= 10 ? un[2][np.num] : np.num + un[1]) });
+    } else push(numJP(np.num, np.parts[0], casual));
+  }
   return { w: w, r: r, parts: parts, head: np.parts[np.parts.length - 1] };
 }
 
@@ -801,12 +814,16 @@ function genClause(c, casual) {
   var objParticle = c.ga ? "が" : "を";
   if (V && kind === "verb" && /^(会う|乗る|入る|電話する|連絡する|着く|座る|住む|泊まる|付き合う|参加する)$/.test(V.w)) objParticle = (V.w === "付き合う") ? "と" : "に";
   if (V && kind === "verb" && /^(行く|来る|帰る|戻る)$/.test(V.w)) objParticle = "に";
-  if (c.modal === "can" && kind === "verb" && !c.request) objParticle = c.ga ? "が" : "が";
+  if (c.modal === "can" && kind === "verb" && !c.request && !canTe(c)) objParticle = "が"; // 寿司が食べられる, but 写真を撮ってもらえますか
   if (c.modal === "want" && kind === "verb") objParticle = objParticle === "を" ? "を" : objParticle;
   if (c.have && c.q && !casual && !c.qword) objParticle = "は";
   if (c.canHave) objParticle = "を";
   if (c.modal === "should" && c.subj && /^(we|me|you)$/.test(c.subj.pron || "")) { /* suggestion: subject implied */ }
   if (c.verb && c.verb.lemma === "take" && c.obj && c.obj.parts && c.obj.parts[0] && c.obj.parts[0].w && /^(タクシー|電車|バス|地下鉄|新幹線|飛行機|船)$/.test(c.obj.parts[c.obj.parts.length - 1].w)) { V = W("乗る", "のる", "v5r"); Vw = V; objParticle = "に"; }
+  if (c.verb && c.verb.lemma === "leave" && c.obj && kind === "verb") { // leave *something*: forget it / check it in / put it
+    V = c.past ? W("忘れる", "わすれる", "v1") : (c.modal === "can" || c.aux === "may") ? W("預ける", "あずける", "v1") : W("置く", "おく", "v5k"); Vw = V; objParticle = "を";
+  }
+  if (c.verb && c.verb.lemma === "call" && c.obj && c.obj.parts && c.obj.parts.length && c.obj.parts[c.obj.parts.length - 1].w && /^(タクシー|警察|救急車|医者|店員|スタッフ|駅員)$/.test(c.obj.parts[c.obj.parts.length - 1].w)) { V = W("呼ぶ", "よぶ", "v5b"); Vw = V; objParticle = "を"; }
   var dropObjP = casual && (objParticle === "を" || objParticle === "が") && !c.pps.length && !c.needNoun;
   function pushObj(o) {
     if (!o) return;
@@ -887,6 +904,13 @@ function renderAdjPred(V, kind, c, casual) {
   if (casual) return c.past ? add(V, "だった", "|だった") : { w: V.w, r: V.r };
   return add(V, c.past ? "でした" : "です", c.past ? "|でした" : "|です");
 }
+function canTe(c) { // "can you X?" / "can I X?" become て-form requests (てもらえますか / てもいいですか)
+  if (!c.q || !c.subj) return false;
+  var lem = c.verb ? c.verb.lemma : "", reqAdv = (c.advs || []).some(function (a) { return /^(slower|slowly|louder|again|faster)$/.test(a); });
+  if (c.modal === "can" && c.subj.pron === "you" && (REQUEST_VERBS.test(lem) || c.request || c.iobj || reqAdv) && (reqAdv || !/^(speak|read|eat|drink|swim|drive|understand|use|cook|sing|dance|write)$/.test(lem))) return true;
+  if (c.qword && /^(where|how|what|when)$/.test(c.qword)) return false;
+  return (c.modal === "can" || c.aux === "may") && (c.subj.pron === "me" || c.subj.pron === "we") && !/^(have|get)$/.test(lem) && !c.have;
+}
 function renderVerbPred(V, c, casual) {
   var x = V, res;
   var lem = c.verb ? c.verb.lemma : "";
@@ -947,30 +971,49 @@ function renderSegs(segs) {
   var w = "", ro = [], prev = null;
   segs.forEach(function (s) {
     w += s.w;
-    if (s.kind === "x") { if (ro.length) ro[ro.length - 1] += s.w === "、" ? "," : s.w === "？" ? "?" : s.w === "！" ? "!" : ""; return; }
+    if (s.kind === "x") {
+      var core = s.w.replace(/[、？！。]+$/, ""), pun = s.w.slice(core.length).replace(/、/g, ",").replace(/？/g, "?").replace(/！/g, "!").replace(/。/g, "");
+      if (core) ro.push(romaji(core) + pun); else if (ro.length) ro[ro.length - 1] += pun; // "か？" -> "ka?" (was dropped, so questions read as statements)
+      return;
+    }
     var r = s.kind === "p" ? (PRT_R[s.w] || (s.w.length > 1 && s.w[0] === "の" ? "no " + romaji(s.w.slice(1)) : romaji(s.r))) : romaji(s.r || s.w);
     if (r) ro.push(r);
   });
   return { jp: w, ro: ro.join(" ").replace(/\s+([?,!])/g, "$1") };
 }
 
+function roParts(r) { // "なまえ|は？" -> "namae wa?" (particles read as particles)
+  return r.split("|").map(function (p) { var core = p.replace(/[？！、。]+$/, ""), pun = p.slice(core.length); return (PRT_R[core] || (/^(に|で|と|へ|から|まで)は$/.test(core) ? romaji(core.slice(0, -1)) + " wa" : romaji(core))) + pun; }).join(" ")
+    .replace(/？/g, "?").replace(/！/g, "!").replace(/、/g, ",").replace(/。/g, ".").replace(/\s+([?!,.])/g, "$1");
+}
 // special whole-sentence patterns (before parsing)
 var SPECIAL = [
-  [/^how are you( doing)?$/, ["元気？", "げんき？"], ["お元気ですか？", "おげんきですか？"]],
-  [/^what is up$|^sup$|^wassup$|^whats up$/, ["最近どう？", "さいきんどう？"], ["最近どうですか？", "さいきんどうですか？"]],
+  [/^wait a (minute|moment|second|sec|bit)$/, ["ちょっと待って", "ちょっと|まって"], ["ちょっと待ってください", "ちょっと|まって|ください"]],
+  [/^hurry( up)?$/, ["急いで！", "いそいで！"], ["急いでください", "いそいで|ください"]],
+  [/^what does (this|it) mean$/, ["これどういう意味？", "これ|どういう|いみ？"], ["これはどういう意味ですか？", "これ|は|どういう|いみ|ですか？"]],
+  [/^what does that mean$/, ["それどういう意味？", "それ|どういう|いみ？"], ["それはどういう意味ですか？", "それ|は|どういう|いみ|ですか？"]],
+  [/^see you tomorrow$/, ["また明日！", "また|あした！"], ["また明日", "また|あした"]],
+  [/^see you (later|soon)$/, ["また後でね！", "また|あとで|ね！"], ["また後で", "また|あとで"]],
+  [/^no,? thanks?( you)?$/, ["大丈夫、ありがと", "だいじょうぶ、|ありがと"], ["結構です、ありがとうございます", "けっこう|です、|ありがとう|ございます"]],
+  [/^i need help$/, ["助けて！", "たすけて！"], ["助けてください！", "たすけて|ください！"]],
+  [/^(i want to )?check ?out( please)?$/, ["チェックアウトお願いします", "ちぇっくあうと|おねがいします"], ["チェックアウトをお願いします", "ちぇっくあうと|を|おねがいします"]],
+  [/^is this seat (taken|free|available|open)$/, ["この席空いてる？", "この|せき|あいてる？"], ["この席は空いていますか？", "この|せき|は|あいて|いますか？"]],
+  [/^it hurts$/, ["痛い！", "いたい！"], ["痛いです", "いたい|です"]],
+  [/^how are you( doing)?$/, ["元気？", "げんき？"], ["お元気ですか？", "お|げんき|ですか？"]],
+  [/^what is up$|^sup$|^wassup$|^whats up$/, ["最近どう？", "さいきん|どう？"], ["最近どうですか？", "さいきん|どう|ですか？"]],
   [/^what time is it( now)?$/, ["今何時？", "いま|なんじ？"], ["今何時ですか？", "いま|なんじ|ですか？"]],
-  [/^where are you from$/, ["どこから来たの？", "どこからきたの？"], ["どちらから来ましたか？", "どちらからきましたか？"]],
-  [/^how old are you$/, ["何歳？", "なんさい？"], ["何歳ですか？", "なんさいですか？"]],
-  [/^what is your name$/, ["名前は？", "なまえは？"], ["お名前は何ですか？", "おなまえはなんですか？"]],
-  [/^(i love you)$/, ["大好きだよ", "だいすきだよ"], ["大好きです", "だいすきです"]],
-  [/^(let me know)$/, ["教えて", "おしえて"], ["教えてください", "おしえてください"]],
-  [/^(good job|well done|nice)$/, ["いいね！", "いいね！"], ["いいですね！", "いいですね！"]],
+  [/^where are you from$/, ["どこから来たの？", "どこ|から|きたの？"], ["どちらから来ましたか？", "どちら|から|きましたか？"]],
+  [/^how old are you$/, ["何歳？", "なんさい？"], ["何歳ですか？", "なんさい|ですか？"]],
+  [/^what is your name$/, ["名前は？", "なまえ|は？"], ["お名前は何ですか？", "お|なまえ|は|なん|ですか？"]],
+  [/^(i love you)$/, ["大好きだよ", "だいすき|だよ"], ["大好きです", "だいすき|です"]],
+  [/^(let me know)$/, ["教えて", "おしえて"], ["教えてください", "おしえて|ください"]],
+  [/^(good job|well done|nice)$/, ["いいね！", "いいね！"], ["いい|ですね！", "いい|ですね！"]],
   [/^(i do not know)$/, ["わかんない", "わかんない"], ["わかりません", "わかりません"]],
   [/^(i see|got it|understood)$/, ["なるほど", "なるほど"], ["わかりました", "わかりました"]],
-  [/^(no problem|no worries)$/, ["大丈夫だよ", "だいじょうぶだよ"], ["大丈夫です", "だいじょうぶです"]],
+  [/^(no problem|no worries)$/, ["大丈夫だよ", "だいじょうぶ|だよ"], ["大丈夫です", "だいじょうぶ|です"]],
   [/^(see you|see ya|bye|goodbye|later)$/, ["またね！", "またね！"], ["さようなら", "さようなら"]],
-  [/^(good morning)$/, ["おはよ", "おはよ"], ["おはようございます", "おはようございます"]],
-  [/^(good night)$/, ["おやすみ", "おやすみ"], ["おやすみなさい", "おやすみなさい"]],
+  [/^(good morning)$/, ["おはよ", "おはよ"], ["おはようございます", "おはよう|ございます"]],
+  [/^(good night)$/, ["おやすみ", "おやすみ"], ["おやすみなさい", "おやすみ|なさい"]],
   [/^(cheers)$/, ["乾杯！", "かんぱい！"], ["乾杯！", "かんぱい！"]],
   [/^how long (does|will) it take$/, ["どのくらいかかる？", "どのくらい|かかる？"], ["どのくらいかかりますか？", "どのくらい|かかりますか？"]],
   [/^i have a headache$/, ["頭痛い", "あたま|いたい"], ["頭が痛いです", "あたま|が|いたい|です"]],
@@ -1009,6 +1052,16 @@ function howToGet(s, casual) {
   return { jp: x.w + (casual ? "ってどうやって行けばいい？" : "にはどうやって行けばいいですか？"), r: x.r + (casual ? "|って|どうやって|いけば|いい？" : "|には|どうやって|いけば|いい|ですか？"), unknown: np.unknown };
 }
 
+function bodyAndAge(s, casual) { // "my head hurts", "my bag was stolen", "i am 21 (years old)"
+  var m = s.match(/^i am (\d{1,3})( years old)?$/);
+  if (m) return { jp: m[1] + (casual ? "歳だよ" : "歳です"), r: m[1] + "|さい|" + (casual ? "だよ" : "です") };
+  m = s.match(/^my (.+?) (hurts?|is hurting|aches?|is sore)$/) || s.match(/^i have a pain in my (.+)$/);
+  var np, x;
+  if (m) { np = parseNP(tokens(m[1]), 0); if (!np) return null; x = renderNP(np, casual); return { jp: x.w + (casual ? "が痛い" : "が痛いです"), r: x.r + "|が|いたい" + (casual ? "" : "|です"), unknown: np.unknown }; }
+  m = s.match(/^my (.+?) (was|got|has been) stolen$/) || s.match(/^someone stole my (.+)$/);
+  if (m) { np = parseNP(tokens(m[1]), 0); if (!np) return null; x = renderNP(np, casual); return { jp: x.w + (casual ? "を盗まれた" : "を盗まれました"), r: x.r + "|を|ぬすまれ" + (casual ? "た" : "ました"), unknown: np.unknown }; }
+  return null;
+}
 function splitClauses(t) { // split on conjunctions followed by a new subject
   var res = [], cur = [], conj = [];
   for (var i = 0; i < t.length; i++) {
@@ -1034,9 +1087,9 @@ E.enToJa = function (text, tone) {
     var s = normalizeEN(sent).replace(/[.!?]+$/, "").trim();
     var sp = null;
     for (var k = 0; k < SPECIAL.length; k++) if (SPECIAL[k][0].test(s)) { sp = SPECIAL[k][casual ? 1 : 2]; break; }
-    if (sp) { allJp.push(sp[0]); allRo.push(romaji(sp[1]).replace(/？/g, "?").replace(/！/g, "!")); return; }
-    var how = howToGet(s, casual) || allergic(s, casual) || firstTime(s, casual);
-    if (how) { allJp.push(how.jp); allRo.push(romaji(how.r).replace("？", "?")); unknown = unknown.concat(how.unknown || []); return; }
+    if (sp) { allJp.push(sp[0]); allRo.push(roParts(sp[1])); return; }
+    var how = howToGet(s, casual) || allergic(s, casual) || firstTime(s, casual) || bodyAndAge(s, casual);
+    if (how) { allJp.push(how.jp); allRo.push(roParts(how.r)); unknown = unknown.concat(how.unknown || []); return; }
     var t = tokens(s);
     var sc = splitClauses(t);
     var parts = sc.clauses.map(function (cl) {
@@ -1060,7 +1113,7 @@ E.enToJa = function (text, tone) {
     if (ex && !/[！？]$/.test(jp)) jp += "！";
     allJp.push(jp); allRo.push(ro.join(" ").replace(/\s+,/g, ","));
   });
-  return { jp: allJp.join(casual ? " " : "").replace(/ $/, ""), ro: allRo.join(" ").replace(/？/g, "?").replace(/！/g, "!").replace(/、/g, ","), unknown: unknown };
+  return { jp: allJp.join(casual ? " " : "").replace(/ $/, ""), ro: allRo.join(" ").replace(/？/g, "?").replace(/！/g, "!").replace(/、/g, ",").replace(/(desu|masu|deshou|mashou|mashita|deshita|masen)ka(?=[?!.,\s]|$)/g, "$1 ka"), unknown: unknown };
 };
 
 /* ------------------------------------------------------------------ JP -> EN */
@@ -1240,8 +1293,59 @@ function art(n, def) {
   return n;
 }
 
+var JP_FIXED = {
+  "いらっしゃいませ": "Welcome! (staff greeting — no reply needed)", "いらっしゃいませこんにちは": "Welcome! (staff greeting — no reply needed)",
+  "何名様ですか": "How many people?", "何名様でしょうか": "How many people?", "何名様でいらっしゃいますか": "How many people?", "お一人様ですか": "Just one person?", "おひとり様ですか": "Just one person?",
+  "喫煙席と禁煙席どちらがよろしいですか": "Smoking or non-smoking?", "おタバコは吸われますか": "Do you smoke?",
+  "店内でお召し上がりですか": "Eating here?", "こちらでお召し上がりですか": "Eating here?", "店内でお召し上がりでしょうか": "Eating here?", "お持ち帰りですか": "Takeout?", "テイクアウトですか": "Takeout?",
+  "店内ご利用ですか": "Eating here?", "温めますか": "Shall I heat it up?", "お温めしますか": "Shall I heat it up?", "温めましょうか": "Shall I heat it up?", "こちら温めますか": "Shall I heat this up?",
+  "袋はご利用ですか": "Do you need a bag?", "袋はいりますか": "Do you need a bag?", "レジ袋はご利用ですか": "Do you need a bag?", "袋お付けしますか": "Do you need a bag?", "袋はご入用ですか": "Do you need a bag?", "袋は有料ですがよろしいですか": "Bags cost extra — is that OK?",
+  "お箸はご利用ですか": "Do you need chopsticks?", "お箸お付けしますか": "Do you need chopsticks?", "お箸はおつけしますか": "Do you need chopsticks?", "お箸は何膳ですか": "How many pairs of chopsticks?",
+  "ポイントカードはお持ちですか": "Do you have a point card?", "ポイントカードはございますか": "Do you have a point card?",
+  "以上でよろしいですか": "Will that be all?", "ご注文は以上でよろしいですか": "Will that be all?", "以上でよろしいでしょうか": "Will that be all?", "ご注文はお決まりですか": "Are you ready to order?",
+  "お決まりでしたらお呼びください": "Call us when you've decided.", "お決まりですか": "Have you decided?", "ご利用ですか": "Will you use it? / Do you need it?", "お決まりになりましたらお呼びください": "Call us when you've decided.",
+  "少々お待ちください": "Please wait a moment.", "少々お待ちくださいませ": "Please wait a moment.", "お待たせしました": "Sorry to keep you waiting (here you go).", "お待たせいたしました": "Sorry to keep you waiting (here you go).",
+  "結構です": "No thank you / I'm fine.", "大丈夫です": "I'm fine / No thanks.", "お会計はご一緒ですか": "Paying together?", "お支払いはご一緒ですか": "Paying together?", "お会計は別々ですか": "Paying separately?", "別々ですか": "Separately?",
+  "お支払いは現金ですかカードですか": "Cash or card?", "お支払い方法はいかがなさいますか": "How would you like to pay?", "お支払いはどうなさいますか": "How would you like to pay?",
+  "レシートはご利用ですか": "Do you need the receipt?", "レシートはいりますか": "Do you need the receipt?", "レシートご入用ですか": "Do you need the receipt?",
+  "ありがとうございました": "Thank you very much!", "またお越しくださいませ": "Please come again!", "またお越しください": "Please come again!", "またのお越しをお待ちしております": "We hope to see you again!",
+  "申し訳ございません": "We're very sorry.", "申し訳ありません": "We're very sorry.", "かしこまりました": "Certainly!", "承知しました": "Understood.", "承知いたしました": "Understood.",
+  "こちらへどうぞ": "This way, please.", "お席へご案内します": "I'll show you to your seat.", "お好きな席へどうぞ": "Sit anywhere you like.", "お好きなお席へどうぞ": "Sit anywhere you like.",
+  "ラストオーダーです": "It's last orders.", "ラストオーダーになります": "It's last orders.", "満席です": "We're full.", "只今満席です": "We're full right now.", "ただいま満席です": "We're full right now.",
+  "お名前をお願いします": "Your name, please.", "お名前をいただけますか": "May I have your name?", "パスポートをお願いします": "Your passport, please.", "パスポートを拝見します": "May I see your passport?",
+  "こちらにお名前をお書きください": "Please write your name here.", "食券を買ってください": "Please buy a meal ticket from the machine.", "食券をお買い求めください": "Please buy a meal ticket from the machine.", "先に食券をお買い求めください": "Please buy a meal ticket from the machine first.",
+  "お通しです": "Here's your otoshi (small starter that comes with the cover charge).", "辛さはどうしますか": "How spicy would you like it?", "辛さはいかがなさいますか": "How spicy would you like it?",
+  "麺の硬さはどうしますか": "How firm would you like your noodles?", "麺の固さはどうしますか": "How firm would you like your noodles?", "麺の硬さはいかがなさいますか": "How firm would you like your noodles?",
+  "お飲み物はいかがですか": "Would you like something to drink?", "お飲み物はいかがなさいますか": "What would you like to drink?", "お飲み物は何になさいますか": "What would you like to drink?",
+  "他にご注文はございますか": "Anything else?", "ご注文は何になさいますか": "What would you like to order?", "以上です": "That's all.", "現金のみです": "Cash only.", "現金のみとなっております": "Cash only.", "カードは使えません": "Cards aren't accepted.",
+  "年齢確認をお願いします": "Please confirm your age (tap the screen).", "画面のタッチをお願いします": "Please tap the screen.", "ご予約はされていますか": "Do you have a reservation?", "ご予約ですか": "Do you have a reservation?",
+  "お荷物をお預かりしましょうか": "Shall I keep your luggage?", "朝食は何時からですか": "What time is breakfast?", "お気をつけて": "Take care!", "どうぞ": "Here you go / Go ahead.", "どうぞお先に": "After you.", "ここが痛いですか": "Does it hurt here?", "どこが痛いですか": "Where does it hurt?", "どうしましたか": "What's wrong? / What happened?", "どうされましたか": "What's wrong?", "大丈夫ですか": "Are you okay?", "保険証はお持ちですか": "Do you have an insurance card?", "お大事に": "Get well soon / Take care.",
+  "お先にどうぞ": "After you.", "こちらでよろしいですか": "Is this one OK?", "サイズはいかがですか": "How's the size?", "ご試着されますか": "Would you like to try it on?", "免税の手続きをしますか": "Shall I do the tax-free procedure?", "パスポートはお持ちですか": "Do you have your passport?"
+};
+var KEIGO_V = { "持ち": "have it", "召し上がり": "eat", "待ち": "wait", "越し": "come", "掛け": "take a seat", "かけ": "take a seat", "入り": "come in", "使い": "use", "座り": "sit down", "探し": "look for something", "呼び": "call us", "選び": "choose" };
+function keigo(s) { // お待ちください -> Please wait; お持ちですか -> Do you have …?; ご利用ですか -> Will you use it?
+  var m = s.match(/^[おご](.+?)(?:くださいませ|ください|下さい)$/), r, w;
+  if (m && KEIGO_V[m[1]]) return "Please " + KEIGO_V[m[1]] + ".";
+  var q = s.match(/^[おご](.+?)(?:です|でしょう)か$/);
+  if (q && KEIGO_V[q[1]]) return "Do you " + KEIGO_V[q[1]] + "?";
+  if (m) { r = E.jaToEn(m[1] + "ます"); w = r && r.words[0]; if (w && !w.unknown && w.en && w.en !== "?") return "Please " + w.en.replace(/^to /, "").split(/[;,]/)[0] + "."; }
+  m = s.match(/^[おご](.+?)(?:です|でしょう)か$/);
+  if (m) {
+    r = E.jaToEn(m[1] + "ます"); w = r && r.words.length === 1 ? r.words[0] : null;
+    if (w && !w.unknown && w.en && w.en !== "?" && w.base && w.base !== w.jp) return "Do you " + w.en.replace(/^to /, "").split(/[;,]/)[0] + "?";
+    r = E.jaToEn(m[1]); w = r && r.words.length === 1 ? r.words[0] : null;
+    if (w && !w.unknown && w.en && w.en !== "?") return cap(w.en.split(/[;,]/)[0]) + "?";
+  }
+  return "";
+}
 E.jaToEn = function (text) {
   if (!D) return null;
+  var fx = String(text).replace(/[\s　]+/g, "").replace(/[。！？!?、～〜♪…]+$/, "");
+  var kg = JP_FIXED[fx] || keigo(fx);
+  if (kg) { var inner = E.jaToEn.raw(text); inner.en = kg; return inner; }
+  return E.jaToEn.raw(text);
+};
+E.jaToEn.raw = function (text) {
   var toks = segmentJP(text.trim());
   var words = [], ro = [];
   toks.forEach(function (t) {
@@ -1256,7 +1360,7 @@ E.jaToEn = function (text) {
   toks.forEach(function (t) { cur.push(t); if (t.punct === "." || t.punct === "!" || t.punct === "?") { sents.push(cur); cur = []; } });
   if (cur.length) sents.push(cur);
   var en = sents.map(function (s) { try { return jaSentence(s); } catch (err) { return ""; } }).filter(Boolean).join(" ");
-  return { en: en, words: words, ro: ro.join(" ") };
+  return { en: en, words: words, ro: ro.join(" ").replace(/(desu|masu|deshou|mashou|mashita|deshita|masen)ka(?=[?!.,\s]|$)/g, "$1 ka") };
 };
 
 function jaSentence(toks) {

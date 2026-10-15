@@ -725,3 +725,11 @@ sim card	SIMカード@しむ|かーど#n
 sim	SIM@しむ#n
 to take time	かかる@かかる#v5r
 headache	頭痛@ずつう#n
+# travel / emergency fixes (auto picks were: minute->綿密 'meticulous', help->救い 'salvation', out->ＯＵＴ, stolen->持ち逃げ, mean->卑劣)
+minute	分@ふん
+minutes	分@ふん
+help	助け@たすけ
+outside	外@そと
+to hurt	痛む@いたむ
+to steal	盗む@ぬすむ
+to mean	意味する@いみする

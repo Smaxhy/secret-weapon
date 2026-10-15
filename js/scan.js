@@ -829,7 +829,12 @@ function render(items, colorCanvas) {
         lab.style.maxHeight = Math.max(12, (b.y1 - b.y0) / IH * 100) + "%";
       } else {
         w = Math.min(96, Math.max(18, (b.x1 - b.x0) / IW * 100 + 10));
-        if (left + w > 99) left = Math.max(1, 99 - w);
+        items.forEach(function (o) { // stop before the next column's dish on the same row
+          var ob = o.box; if (!ob || o === it || ob.x0 <= b.x0 + 4 || Math.min(ob.y1, b.y1) - Math.max(ob.y0, b.y0) < (b.y1 - b.y0) * 0.3) return;
+          w = Math.max(12, Math.min(w, (ob.x0 - b.x0) / IW * 100 - 1.5));
+        });
+        w = Math.min(w, 99 - left); // shrink rather than slide left over another column
+        if (w < 16) { left = Math.max(1, 83); w = 16; }
         lab.style.maxWidth = w + "%";
       }
       if (top < 9 && left + w > 62) top = 9; // keep clear of the "New scan" button

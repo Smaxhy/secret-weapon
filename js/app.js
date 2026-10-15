@@ -21,9 +21,16 @@ function vibrate(ms) { try { if (navigator.vibrate) navigator.vibrate(ms || 8); 
 
 /* ---------------------------------------------------------------- mascot */
 var MASCOT_SVG = "";
-function fillMascots() { $$("[data-mascot]").concat([$("#mascotHead")]).forEach(function (el) { if (el && MASCOT_SVG) el.innerHTML = MASCOT_SVG; }); }
-fetch("img/hana.svg").then(function (r) { return r.text(); }).then(function (t) {
-  MASCOT_SVG = t.replace(/<\?xml[^>]*>/, "").replace(/id="([^"]+)"/g, function (m, id) { return 'id="' + id + '"'; });
+var mascotN = 0;
+function fillMascots() {
+  $$("[data-mascot]").concat([$("#mascotHead")]).forEach(function (el) {
+    if (!el || !MASCOT_SVG || el._hana) return;
+    var n = ++mascotN; el._hana = 1;
+    el.innerHTML = MASCOT_SVG.replace(/id="([^"]+)"/g, function (m, id) { return 'id="' + id + "-" + n + '"'; }).replace(/url\(#([^)]+)\)/g, function (m, id) { return "url(#" + id + "-" + n + ")"; });
+  });
+}
+fetch("img/hana.svg?v=7").then(function (r) { return r.text(); }).then(function (t) {
+  MASCOT_SVG = t.replace(/<\?xml[^>]*>/, "");
   fillMascots();
 }).catch(function () {});
 var bubbleT = null;
@@ -41,19 +48,19 @@ function say(jp, en, force) {
 /* Hana's lines: [jp, en, expression] — "cheeky" = teasing onee-san, "sweet" = wholesome */
 var LINES = {
   cheeky: {
-    hello: [["あら、いらっしゃい♡", "Ara ara~ welcome back, cutie♡", "wink"], ["待ってたわよ♡", "Took you long enough~ I missed you♡", "wink"], ["今日はどこに連れてってくれるの？", "So… where are you taking me today? 😏", ""]],
+    hello: [["あらあら、おかえり♡", "Ara ara~ welcome back♡", "wink"], ["待ってたわよ♡", "Took you long enough~ I missed you♡", "wink"], ["今日はどこに連れてってくれるの？", "So… where are you taking me today? 😏", ""]],
     tap: [["ちょっと、どこ触ってるの？😳", "H-hey! Where do you think you're poking?! 😳", "fluster"], ["もう…エッチ♡", "Mou~ you're such a perv♡", "wink"], ["お姉さんに任せなさい♡", "Leave everything to onee-san~♡", "wink"], ["そんなに見つめないで…照れるでしょ", "Stop staring like that… you'll make me blush", "fluster"],
       ["バカ！翻訳しに来ただけよ！", "B-baka! I'm only here to translate!", "fluster"], ["日本の夜は長いわよ♡", "Japanese nights are long~ pace yourself♡", "wink"], ["欲しいのは翻訳？それとも…私？", "Do you want a translation… or me? 😏", "wink"], ["ふふっ、可愛い反応♡", "Fufu~ cute reaction♡", ""]],
-    poked: [["触りすぎ！お触り禁止よ💢", "That's enough touching, pervert! 💢 Hands off the merchandise!", "fluster"], ["次触ったら有料よ♡", "Next touch costs ¥1000~♡", "wink"]],
+    poked: [["触りすぎ！もう知らないっ💢", "Too much poking! I'm ignoring you now 💢", "fluster"], ["次触ったらデコピンよ♡", "Poke me again and you get a forehead flick~♡", "wink"], ["…エッチ。でも嫌いじゃないわ♡", "…perv. Not that I hate it~♡", "wink"]],
     translate: [["はい、どうぞ♡ ご褒美は？", "Here you go♡ …where's my reward?", "wink"], ["簡単すぎ♡ もっと難しいのちょうだい", "Too easy♡ give me something harder~", ""], ["お姉さん、優秀でしょ？", "Onee-san's pretty good, right?", "wink"], ["オフラインでもイケるのよ♡", "No signal? I can still do it~♡", ""]],
     phrase: [["それ、私もよく使うわ♡", "I use that one a lot too~♡", "wink"], ["定番ね。好きよ、そういうの", "A classic. I like that~", ""]],
     save: [["大事にしてね♡", "Treat it gently♡", "wink"], ["しまっといたわ♡", "Tucked it away for you♡", ""]],
-    right: [["天才♡ ご褒美あげちゃう", "Genius♡ you've earned a reward~", "wink"], ["賢い子、好きよ♡", "I like smart ones~♡", "wink"], ["やるじゃない♡", "Ooh, not bad at all♡", ""]],
-    wrong: [["お仕置きが必要かしら？😈", "Do you need a little punishment? 😈 …kidding, again!", "wink"], ["ドンマイ♡ 手取り足取り教えてあげる", "Don't worry♡ I'll teach you… very carefully", "wink"]],
+    right: [["天才♡ ご褒美あげちゃう", "Genius♡ you've earned a reward~", "wink"], ["賢い人、好きよ♡", "I like smart people~♡", "wink"], ["やるじゃない♡", "Ooh, not bad at all♡", ""]],
+    wrong: [["お仕置きが必要かしら？😈 …なんてね、もう一回♡", "Need a little punishment? 😈 …kidding, try again♡", "wink"], ["ドンマイ♡ 手取り足取り教えてあげる", "Don't worry♡ I'll teach you… very carefully", "wink"]],
     scan: [["そのメニュー、見せて♡", "Show me that menu~ don't be shy♡", "wink"], ["じっとしてて…♡", "Hold still for me…♡", ""]],
     scanDone: [["美味しそう…あなたもね😏", "Looks delicious… just like you 😏", "wink"], ["見つけた♡ 何頼む？", "Found it all♡ what are you ordering?", ""], ["お姉さんの奢り…なわけないでしょ", "Onee-san's treat? …as if~", "wink"]],
     alcohol: [["酔わせてどうするつもり？😏", "Trying to get me drunk? 😏", "wink"], ["飲みすぎ注意よ♡", "Don't drink too much, okay?♡", ""]],
-    spicy: [["辛いの好き？…私も熱いの好き🔥", "Like it spicy? …me too 🔥", "wink"]],
+    spicy: [["辛いの好き？…私も刺激的なのが好き🔥", "Like it spicy? …I like a thrill too 🔥", "wink"]],
     listen: [["ちゃんと聞いてるわ♡", "I'm listening… closely♡", "wink"]],
     loading: [["ちょっと待って、準備中♡", "Wait a sec, I'm getting ready♡", ""]]
   },
@@ -65,7 +72,7 @@ var LINES = {
     phrase: [["フレーズ帳にあったよ！", "Found it in the phrasebook!", ""]],
     save: [["保存したよ！", "Saved it!", "wink"]],
     right: [["すごい！🔥", "Awesome!", "wink"], ["その調子！", "Keep it up!", ""]],
-    wrong: [["ドンマイ！", "No worries, again!", ""]],
+    wrong: [["ドンマイ！もう一回！", "No worries — try again!", ""]],
     scan: [["読んでみるね！", "Let me read it!", ""]],
     scanDone: [["見つけたよ！", "Found the dishes!", "wink"]],
     alcohol: [["乾杯！🍻", "Cheers!", "wink"]],
@@ -140,10 +147,11 @@ function toast(msg) { var t = $("#toast"); t.textContent = msg; t.classList.add(
 function setupSeg(el, value, onPick) {
   var btns = el.querySelectorAll("button"), thumb = el.querySelector(".seg-thumb");
   function paint(v) {
+    var hidden = !el.offsetWidth; // inside a hidden page: sizes read as 0, so only flip the classes
     for (var i = 0; i < btns.length; i++) {
       var b = btns[i], is = b.getAttribute("data-v") === v;
       b.classList.toggle("on", is);
-      if (is && thumb) { thumb.style.width = b.offsetWidth + "px"; thumb.style.transform = "translateX(" + (b.offsetLeft - 3) + "px)"; }
+      if (is && thumb && !hidden) { thumb.style.width = b.offsetWidth + "px"; thumb.style.transform = "translateX(" + (b.offsetLeft - 3) + "px)"; }
     }
   }
   for (var i = 0; i < btns.length; i++) (function (b) { on(b, "click", function () { paint(b.getAttribute("data-v")); onPick(b.getAttribute("data-v")); vibrate(6); }); })(btns[i]);
@@ -153,25 +161,45 @@ function setupSeg(el, value, onPick) {
 setupSeg($("#tone"), S.tone, function (v) { S.tone = v; saveS(); if ($("#setTone")._paint) $("#setTone")._paint(v); if ($("#inp").value.trim()) translate(); renderList(); });
 
 /* ---------------------------------------------------------------- network + dictionary */
+var DICT_URL = "data/dict.json?v=6", DICT_CACHE = "hana-data-6", offlineOK = null;
+var standalone = window.navigator.standalone === true || !!(window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
 function updNet() {
   var dict = E.ready();
   $("#netDot").classList.toggle("on", navigator.onLine);
-  $("#netTxt").textContent = (navigator.onLine ? "online" : "offline") + " · " + (dict ? "offline engine ready ⚡" : "loading dictionary…");
+  $("#netTxt").textContent = (navigator.onLine ? "online" : "offline") + " · " + (!dict ? "loading dictionary…" : offlineOK === false ? "⚠ not saved for offline yet" : offlineOK ? "ready offline ⚡" : "offline engine ready ⚡");
+  var info = $("#dictInfo");
+  if (dict && info) info.textContent = E.size().toLocaleString() + " words · " + (offlineOK ? "saved for offline ✓" : offlineOK === false ? "⚠ not saved for offline yet — keep Hana open on Wi-Fi for a minute" : "checking offline copy…");
 }
-on(window, "online", updNet); on(window, "offline", updNet); updNet();
+function checkOffline() { // the service worker + cached shell + cached dictionary are what make an offline launch work
+  if (!("serviceWorker" in navigator) || !window.caches) { offlineOK = false; updNet(); return; }
+  navigator.serviceWorker.getRegistration().then(function (reg) {
+    if (!reg || !reg.active) return false;
+    return Promise.all([caches.match("index.html"), caches.match(DICT_URL)]).then(function (r) { return !!(r[0] && r[1]); });
+  }).then(function (ok) {
+    offlineOK = !!ok; updNet();
+    if (!ok) setTimeout(checkOffline, 8000);
+  }).catch(function () { offlineOK = false; updNet(); });
+}
+function registerSW() { if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").then(function (reg) { if (reg && reg.update && navigator.onLine) reg.update().catch(function () {}); }).catch(function () {}); }
+on(window, "online", function () { updNet(); if (!offlineOK) registerSW(); }); on(window, "offline", updNet); updNet();
+on(document, "visibilitychange", function () { if (!document.hidden && offlineOK === false && navigator.onLine) registerSW(); });
 function loadDict() {
   $("#mascotBtn").classList.add("loading");
   var fill = $("#ldFill"), txt = $("#ldTxt");
   function done(data) {
     E.load(data);
     $("#loader").classList.add("done"); $("#mascotBtn").classList.remove("loading");
-    $("#dictInfo").textContent = data.e.length.toLocaleString() + " words · works fully offline ✓";
     updNet();
-    if (pendingTranslate) { pendingTranslate = false; translate(); }
+    if (pendingTranslate) { pendingTranslate = false; if (shownReq !== reqId) translate(); }
     if ($("#wq").value) renderWords();
   }
-  fetch("data/dict.json?v=5").then(function (res) {
+  fetch(DICT_URL).then(function (res) {
+    if (!res.ok) throw new Error(res.status);
     var total = +res.headers.get("Content-Length") || 5800000;
+    if (window.caches) { // keep our own copy for offline launches (the service worker may not control this first visit)
+      var copy = res.clone();
+      caches.open(DICT_CACHE).then(function (c) { return c.match(DICT_URL).then(function (h) { if (!h) return c.put(DICT_URL, copy); }); }).then(function () { setTimeout(checkOffline, 500); }).catch(function () {});
+    }
     if (!res.body || !res.body.getReader || !window.TextDecoder) return res.json().then(done);
     var reader = res.body.getReader(), chunks = [], got = 0;
     function pump() {
@@ -197,23 +225,26 @@ function loadDict() {
 
 /* ---------------------------------------------------------------- phrasebook data */
 var ALL = [];
-Object.keys(PHRASES).forEach(function (key) { PHRASES[key].items.forEach(function (p) { ALL.push({ cat: key, en: p[0], cas: p[1], ro: p[2], pol: p[3] || p[1] }); }); });
+Object.keys(PHRASES).forEach(function (key) { PHRASES[key].items.forEach(function (p) { ALL.push({ cat: key, en: p[0], cas: p[1], ro: p[2], pol: p[3] || p[1], pro: p[4] || "" }); }); });
 function jpOf(p) { return S.tone === "polite" ? p.pol : p.cas; }
 function roOf(p) {
   if (S.tone !== "polite" || p.pol === p.cas) return p.ro;
-  if (E.ready()) { var r = E.jaToEn(p.pol); if (r && r.ro) return r.ro; }
+  if (p.pro) return p.pro;
+  if (E.ready()) { var r = E.jaToEn(p.pol); if (r && r.ro && !/[一-龯]/.test(r.ro)) return r.ro; }
   return "";
 }
 function norm(t) { return String(t).toLowerCase().replace(/[?!.,。、？！~～\s'’]/g, ""); }
 function phraseLookup(text) {
   var n = norm(text); if (!n) return null;
   var jp = E.isJP(text), best = null, score = 0;
+  var QJ = /(か|かな|の|？|\?)$/, qIn = jp ? QJ.test(String(text).trim()) : /\?\s*$/.test(text);
   ALL.forEach(function (p) {
     var keys = jp ? [p.cas, p.pol] : [p.en, p.ro];
     keys.forEach(function (k) {
       k.split("/").forEach(function (part) {
         if (part.indexOf("___") >= 0) return;
         var kn = norm(part.replace(/\(.*?\)/g, "")); if (!kn) return;
+        if (kn !== n && (jp ? QJ.test(part.trim()) || /(か|かな|の)$/.test(kn) : /\?\s*$/.test(part)) !== qIn) return; // "ここが痛いですか？" is not "ここが痛い"
         var s = kn === n ? 100 : (kn.length > 4 && (n.indexOf(kn) >= 0 || kn.indexOf(n) >= 0)) ? 60 * Math.min(kn.length, n.length) / Math.max(kn.length, n.length) : 0;
         if (s > score) { score = s; best = p; }
       });
@@ -242,17 +273,18 @@ function online(text, sl, tl) {
 }
 function casualEN(s) {
   if (S.tone === "polite") return s;
-  [[/\bI am\b/g, "I'm"], [/\bdo not\b/gi, "don't"], [/\bdoes not\b/gi, "doesn't"], [/\bcannot\b/gi, "can't"], [/\bis not\b/gi, "isn't"], [/\bare not\b/gi, "aren't"], [/\bwill not\b/gi, "won't"], [/\bI will\b/g, "I'll"], [/\byou are\b/gi, "you're"], [/\bit is\b/gi, "it's"], [/\bIt is\b/g, "It's"], [/\bthat is\b/gi, "that's"], [/\bwhat is\b/gi, "what's"], [/\bWhat is\b/g, "What's"], [/\bWhere is\b/g, "Where's"], [/\bgoing to\b/g, "gonna"], [/\bwant to\b/g, "wanna"], [/\bThank you very much\b/gi, "Thanks so much"], [/\bThank you\b/g, "Thanks"]].forEach(function (r) { s = s.replace(r[0], r[1]); });
+  [[/\bI am\b/g, "I'm"], [/\bdo not\b/gi, "don't"], [/\bdoes not\b/gi, "doesn't"], [/\bcannot\b/gi, "can't"], [/\bis not\b/gi, "isn't"], [/\bare not\b/gi, "aren't"], [/\bwill not\b/gi, "won't"], [/\bI will\b/g, "I'll"], [/\byou are\b/gi, "you're"], [/\bit is\b/gi, "it's"], [/\bIt is\b/g, "It's"], [/\bthat is\b/gi, "that's"], [/\bwhat is\b/gi, "what's"], [/\bWhat is\b/g, "What's"], [/\bWhere is\b/g, "Where's"], [/\bgoing to (?=(?:be|go|do|eat|get|have|make|see|buy|try|take|say|need|come|drink|stay|leave|pay|call|ask|tell|give|watch|sleep|work|play|use|find|look|wait)\b)/g, "gonna "], [/\bwant to\b/g, "wanna"], [/\bThank you very much\b/gi, "Thanks so much"], [/\bThank you\b/g, "Thanks"]].forEach(function (r) { s = s.replace(r[0], r[1]); });
   return s;
 }
 function casualJP(s) {
   if (S.tone === "polite") return s;
-  [["ありがとうございました", "ありがとね"], ["ありがとうございます", "ありがと"], ["おはようございます", "おはよ"], ["ごめんなさい", "ごめん"], ["本当に", "マジで"], ["とても", "めっちゃ"], ["わかりません", "わかんない"], ["わかりました", "わかった"], ["ありますか？", "ある？"], ["ですか？", "？"], ["ませんでした", "なかった"], ["ません", "ない"], ["でした", "だった"], ["ましょう", "よう"], ["ください", "て"], ["です。", "。"], ["私は", S.me + "は"], ["あなた", "君"]].forEach(function (r) { s = s.split(r[0]).join(r[1]); });
-  return s;
+  // whole phrases only: verb endings need verb-class knowledge, and polite is always safe with strangers
+  [["ありがとうございました", "ありがとね"], ["ありがとうございます", "ありがと"], ["おはようございます", "おはよ"], ["ごめんなさい", "ごめん"], ["本当に", "マジで"], ["とても", "めっちゃ"], ["わかりません", "わかんない"], ["わかりました", "わかった"], ["私は", S.me + "は"]].forEach(function (r) { s = s.split(r[0]).join(r[1]); });
+  return s.replace(/([てで])ください([。！!]?)$/, "$1$2").replace(/をください([。！!]?)$/, "ちょうだい$1").replace(/ありますか[？?]$/, "ある？");
 }
 
 /* ---------------------------------------------------------------- translate */
-var dir = "en-ja", last = null, reqId = 0, pendingTranslate = false;
+var dir = "en-ja", last = null, reqId = 0, pendingTranslate = false, shownReq = -1;
 function setDir(d, animate) {
   if (d === dir && !animate) return;
   dir = d;
@@ -268,9 +300,9 @@ on($("#swap"), "click", function () {
 });
 function autosize() { var t = $("#inp"); t.style.height = "auto"; t.style.height = Math.min(240, t.scrollHeight) + "px"; }
 on($("#inp"), "input", autosize);
-on($("#inp"), "keydown", function (e) { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); translate(); } });
+on($("#inp"), "keydown", function (e) { if (e.key === "Enter" && !e.shiftKey && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); translate(); } }); // Enter that confirms a kana->kanji conversion is not "translate"
 on($("#go"), "click", function () { translate(); $("#inp").blur(); });
-on($("#clr"), "click", function () { $("#inp").value = ""; autosize(); showEmpty(); $("#inp").focus(); });
+on($("#clr"), "click", function () { reqId++; last = null; pendingTranslate = false; $("#inp").value = ""; autosize(); showEmpty(); $("#inp").focus(); });
 on($("#paste"), "click", function () {
   if (navigator.clipboard && navigator.clipboard.readText) navigator.clipboard.readText().then(function (t) { $("#inp").value = t; autosize(); translate(); }).catch(function () { toast("Long-press the box to paste"); });
   else toast("Long-press the box to paste");
@@ -289,7 +321,7 @@ function translate() {
   var hit = phraseLookup(text);
   if (hit) {
     var other = S.tone === "casual" ? hit.pol : hit.cas;
-    show({ src: "phrase", jp: jpOf(hit), ro: roOf(hit), en: hit.en, alt: other !== jpOf(hit) ? { label: S.tone === "casual" ? "Polite" : "Casual", jp: other } : null, words: wordsFor(text, isJ) });
+    show({ src: "phrase", jp: jpOf(hit), ro: roOf(hit), en: hit.en, alt: other !== jpOf(hit) ? { label: S.tone === "casual" ? "Polite" : "Casual", jp: other, ro: S.tone === "casual" ? hit.pro : hit.ro } : null, words: wordsFor(text, isJ) }, false, null, my);
     say(line("phrase"));
     return;
   }
@@ -298,18 +330,21 @@ function translate() {
   else pendingTranslate = true;
   if (off) {
     var res = isJ ? { src: "offline", jp: text, ro: off.ro, en: casualEN(off.en), words: off.words } : { src: "offline", jp: off.jp, ro: off.ro, en: text, words: wordsFor(text, false), unknown: off.unknown };
-    show(res);
+    show(res, false, null, my);
   } else {
     $("#result").className = "glass card result filled"; $("#result").innerHTML = '<div class="dots"><i></i><i></i><i></i></div>';
   }
   if (navigator.onLine && S.mode === "auto") {
     online(text, isJ ? "ja" : "en", isJ ? "en" : "ja").then(function (r) {
       if (my !== reqId || !r || !r.text) { if (!off && my === reqId) offlineFail(); return; }
-      var offRes = last && last.src === "offline" ? last : null;
-      var res2 = isJ ? { src: "online", jp: text, ro: (offRes && offRes.ro) || r.rom, en: casualEN(r.text), words: offRes ? offRes.words : [] }
-                     : { src: "online", jp: casualJP(r.text), ro: r.rom ? r.rom.toLowerCase() : "", en: text, words: offRes ? offRes.words : wordsFor(text, false) };
+      var offRes = last && last.src === "offline" && last.req === my ? last : null;
+      var jpOut = isJ ? text : casualJP(r.text), roOut = isJ ? (offRes && offRes.ro) || r.rom : r.rom ? r.rom.toLowerCase() : "";
+      if (!isJ && jpOut !== r.text && E.ready()) { var rr = E.jaToEn(jpOut); if (rr && rr.ro) roOut = rr.ro; } // romaji must match the Japanese actually shown
+      var res2 = isJ ? { src: "online", jp: text, ro: roOut, en: casualEN(r.text), words: offRes ? offRes.words : [] }
+                     : { src: "online", jp: jpOut, ro: roOut, en: text, words: offRes ? offRes.words : wordsFor(text, false) };
       if (offRes) res2.alt = { label: "⚡ Offline engine", jp: isJ ? offRes.en : offRes.jp, ro: isJ ? "" : offRes.ro };
-      show(res2, !!offRes);
+      pendingTranslate = false;
+      show(res2, !!offRes, offRes, my);
     });
   } else if (!off && !E.ready()) {
     say(line("loading"));
@@ -324,8 +359,9 @@ function wordsFor(text, isJ) {
   if (isJ) { var r = E.jaToEn(text); return r ? r.words : []; }
   return E.enWords(text);
 }
-function show(r, quiet) {
-  last = r;
+function show(r, quiet, replaces, req) {
+  if (replaces) { r._fav = replaces._fav; r._book = replaces._book; } // keep Save / Word book state when the online answer arrives
+  r.req = req; r.from = dir === "ja-en" ? "ja" : "en"; last = r; if (req != null) shownReq = req;
   var box = $("#result"), isJ = dir === "ja-en";
   var main = isJ ? r.en : r.jp;
   var badge = r.src === "phrase" ? '<span class="badge phrase">📗 Phrasebook</span>' : r.src === "online" ? '<span class="badge online">🌐 Online</span>' : '<span class="badge offline">⚡ Offline</span>';
@@ -337,7 +373,7 @@ function show(r, quiet) {
   if (r.unknown && r.unknown.length && r.src === "offline") html += '<div class="alt"><b>Guessed (not in dictionary)</b>' + esc(r.unknown.join(", ")) + " → written phonetically in katakana</div>";
   html += '<div class="actions">' +
     '<button class="act" data-a="say">🔊 Listen</button><button class="act" data-a="show">🖥 Show</button>' +
-    '<button class="act" data-a="copy">📋 Copy</button><button class="act" data-a="fav">⭐ Save</button><button class="act" data-a="book">📒 Word book</button></div>';
+    '<button class="act" data-a="copy">📋 Copy</button><button class="act' + (r._fav ? " done" : "") + '" data-a="fav">' + (r._fav ? "⭐ Saved" : "⭐ Save") + '</button><button class="act' + (r._book ? " done" : "") + '" data-a="book">' + (r._book ? "📒 Added" : "📒 Word book") + "</button></div>";
   var ws = (r.words || []).filter(function (w) { return w.jp && w.en; });
   if (ws.length) {
     html += '<div class="chips-label">Word by word · tap to learn</div><div class="chips">' + ws.slice(0, 18).map(function (w, i) {
@@ -348,7 +384,12 @@ function show(r, quiet) {
   box.innerHTML = html;
   $$("#result .act").forEach(function (b) { on(b, "pointerdown", ripple); on(b, "click", function () { act(b.getAttribute("data-a"), b); }); });
   $$("#result .chip").forEach(function (c) { on(c, "click", function () { openWord(ws[+c.getAttribute("data-i")]); }); });
-  addHistory({ jp: r.jp, en: r.en, ro: r.ro || "" });
+  if (replaces) {
+    if (replaces.jp !== r.jp) store.set("hist", store.get("hist", []).filter(function (x) { return x.jp !== replaces.jp; }));
+    if (r._fav) { store.set("fav", store.get("fav", []).filter(function (x) { return x.jp !== replaces.jp; })); addFav({ jp: r.jp, en: r.en, ro: r.ro || "" }); }
+    if (r._book) { store.set("mywords", myWords().filter(function (x) { return x.jp !== replaces.jp; })); addMyWord({ jp: r.jp, en: r.en, ro: r.ro || "" }, true); }
+  }
+  addHistory({ jp: r.jp, en: r.en, ro: r.ro || "", from: r.from });
   renderRecent();
   if (!quiet) { var av = $("#mascotBtn"); av.classList.remove("happy"); void av.offsetWidth; av.classList.add("happy"); }
 }
@@ -365,8 +406,8 @@ function act(a, btn) {
   if (a === "say") { if (isJ) speak(last.en, "en-US"); else speak(last.jp); }
   if (a === "show") showBig(last.jp, last.ro, last.en);
   if (a === "copy") { var t = isJ ? last.en : last.jp; if (navigator.clipboard) navigator.clipboard.writeText(t).then(function () { toast("Copied 📋"); }, function () { toast("Copy failed"); }); btn.classList.add("done"); }
-  if (a === "fav") { addFav({ jp: last.jp, en: last.en, ro: last.ro || "" }); btn.classList.add("done"); btn.textContent = "⭐ Saved"; sparkle(btn, 6, ["⭐", "✨"]); say(line("save")); }
-  if (a === "book") { addMyWord({ jp: last.jp, en: last.en, ro: last.ro || "" }); btn.classList.add("done"); btn.textContent = "📒 Added"; sparkle(btn, 6, ["📒", "✨"]); }
+  if (a === "fav") { last._fav = true; addFav({ jp: last.jp, en: last.en, ro: last.ro || "" }); btn.classList.add("done"); btn.textContent = "⭐ Saved"; sparkle(btn, 6, ["⭐", "✨"]); say(line("save")); }
+  if (a === "book") { last._book = true; addMyWord({ jp: last.jp, en: last.en, ro: last.ro || "" }); btn.classList.add("done"); btn.textContent = "📒 Added"; sparkle(btn, 6, ["📒", "✨"]); }
 }
 
 /* ---------------------------------------------------------------- speech */
@@ -387,12 +428,17 @@ var SR = window.SpeechRecognition || window.webkitSpeechRecognition, rec = null;
 on($("#mic"), "click", function () {
   if (!SR) { toast("Voice input isn't supported here"); return; }
   if (rec) { rec.stop(); return; }
+  if (!navigator.onLine) { toast("Voice input needs internet — type instead"); return; }
   rec = new SR(); rec.lang = dir === "en-ja" ? "en-US" : "ja-JP"; rec.interimResults = true;
   $("#mic").classList.add("rec"); vibrate(15);
   say(line("listen"));
   rec.onresult = function (e) { var t = ""; for (var i = 0; i < e.results.length; i++) t += e.results[i][0].transcript; $("#inp").value = t; autosize(); if (e.results[e.results.length - 1].isFinal) translate(); };
   rec.onend = function () { $("#mic").classList.remove("rec"); rec = null; };
-  rec.onerror = function () { $("#mic").classList.remove("rec"); rec = null; };
+  rec.onerror = function (e) {
+    $("#mic").classList.remove("rec"); rec = null;
+    var er = e && e.error || "";
+    if (er !== "aborted") toast(er === "network" ? "Voice input needs internet" : /not-allowed/.test(er) ? "Allow microphone & dictation in Settings" : er === "no-speech" ? "Didn't hear anything — try again" : "Didn't catch that — try again");
+  };
   try { rec.start(); } catch (e) { $("#mic").classList.remove("rec"); rec = null; }
 });
 
@@ -432,7 +478,7 @@ on($("#wsAdd"), "click", function () { if (wordCur) { addMyWord(wordCur); $("#ws
 /* settings */
 on($("#settingsBtn"), "click", function () { sheet("#settings"); setTimeout(function () { $("#setTone")._paint(S.tone); $("#setMode")._paint(S.mode); if ($("#setMood")._paint) $("#setMood")._paint(S.mood); }, 60); });
 on($("#closeSettings"), "click", function () { sheet(null); });
-setupSeg($("#setTone"), S.tone, function (v) { S.tone = v; saveS(); $("#tone")._paint(v); renderList(); });
+setupSeg($("#setTone"), S.tone, function (v) { S.tone = v; saveS(); $("#tone")._paint(v); renderList(); if ($("#inp").value.trim()) translate(); });
 setupSeg($("#setMode"), S.mode, function (v) { S.mode = v; saveS(); toast(v === "offline" ? "Offline engine only ⚡" : "Auto: offline + online 🌐"); });
 function paintMe() { $$("#setMe button").forEach(function (b) { b.classList.toggle("on", b.getAttribute("data-v") === S.me); }); }
 $$("#setMe button").forEach(function (b) { on(b, "click", function () { S.me = b.getAttribute("data-v"); saveS(); paintMe(); vibrate(6); }); });
@@ -451,7 +497,7 @@ on($("#resetBtn"), "click", function () { if (confirm("Delete favourites, histor
 function addFav(r) { var f = store.get("fav", []).filter(function (x) { return x.jp !== r.jp; }); f.unshift(r); store.set("fav", f.slice(0, 300)); }
 function addHistory(r) { var h = store.get("hist", []).filter(function (x) { return x.jp !== r.jp; }); h.unshift(r); store.set("hist", h.slice(0, 80)); }
 function myWords() { return store.get("mywords", []); }
-function addMyWord(w) { var m = myWords().filter(function (x) { return x.jp !== w.jp; }); m.unshift({ jp: w.jp, en: w.en, ro: w.ro || "" }); store.set("mywords", m); toast("Added to your word book 📒"); }
+function addMyWord(w, quiet) { var m = myWords().filter(function (x) { return x.jp !== w.jp; }); m.unshift({ jp: w.jp, en: w.en, ro: w.ro || "" }); store.set("mywords", m); if (!quiet) toast("Added to your word book 📒"); }
 
 /* ---------------------------------------------------------------- list rows */
 function row(o) { // {jp, ro, en, onFav, onDel, idx}
@@ -544,7 +590,7 @@ function renderWords() {
 }
 
 /* flashcards (Leitner boxes 0-4; lower box = shown more often) */
-var card = null, streak = 0;
+var card = null, streak = 0, grading = false, gradeT = null;
 function pool() { var p = allVocab().filter(function (w) { return w.cat === curWordCat; }); return p.length ? p : allVocab(); }
 function updateRing() {
   var p = pool(), box = store.get("boxes", {}), n = p.filter(function (w) { return (box[w.jp] || 0) >= 3; }).length;
@@ -566,18 +612,19 @@ function nextCard() {
   $("#fcBackRo").textContent = card.jpFirst ? card.jp + " · " + card.ro : card.ro;
   updateRing();
 }
-function stopCards() { $(".practice").classList.remove("running"); card = null; $("#flash").classList.remove("flipped"); $("#fcFront").textContent = "Ready?"; $("#fcHint").textContent = "tap start, then tap the card to flip"; }
+function stopCards() { clearTimeout(gradeT); grading = false; $(".practice").classList.remove("running"); card = null; $("#flash").classList.remove("flipped"); $("#fcFront").textContent = "Ready?"; $("#fcHint").textContent = "tap start, then tap the card to flip"; }
 on($("#fcStart"), "click", function () { $(".practice").classList.add("running"); streak = 0; nextCard(); });
 on($("#flash"), "click", function () { if (!card) return; var f = $("#flash"); var was = f.classList.contains("flipped"); f.classList.toggle("flipped"); if (!was) speak(card.jp); vibrate(6); });
 function grade(ok) {
-  if (!card) return;
+  if (!card || grading) return;
+  grading = true;
   var box = store.get("boxes", {}), b = box[card.jp] || 0;
   box[card.jp] = ok ? Math.min(4, b + 1) : 0; store.set("boxes", box);
   var f = $("#flash"); f.classList.add(ok ? "out-r" : "out-l");
   if (ok) { streak++; if (streak % 3 === 0) { sparkle(f, 12); say(line("right")); } }
   else { streak = 0; if (Math.random() < 0.5) say(line("wrong")); }
   vibrate(ok ? 12 : 25);
-  setTimeout(nextCard, 330);
+  gradeT = setTimeout(function () { grading = false; if ($(".practice").classList.contains("running")) nextCard(); }, 330);
 }
 on($("#fcYes"), "click", function () { grade(true); });
 on($("#fcNo"), "click", function () { grade(false); });
@@ -601,16 +648,17 @@ function renderSaved() {
 function renderRecent() {
   var h = store.get("hist", []).slice(0, 3), el = $("#recent"); el.innerHTML = "";
   $("#recentTitle").style.display = h.length ? "" : "none";
-  h.forEach(function (r, i) { var d = row({ jp: r.jp, ro: r.ro, en: r.en, idx: i }); on(d.querySelector(".t"), "click", function () { $("#inp").value = E.isJP(r.jp) && dir === "ja-en" ? r.jp : r.en; autosize(); translate(); window.scrollTo(0, 0); }); el.appendChild(d); });
+  h.forEach(function (r, i) { var d = row({ jp: r.jp, ro: r.ro, en: r.en, idx: i }); on(d.querySelector(".t"), "click", function () { $("#inp").value = r.from ? (r.from === "ja" ? r.jp : r.en) : (E.isJP(r.jp) && dir === "ja-en" ? r.jp : r.en); autosize(); translate(); window.scrollTo(0, 0); }); el.appendChild(d); });
 }
 on($("#clrH"), "click", function () { store.set("hist", []); renderSaved(); renderRecent(); });
 
 /* ---------------------------------------------------------------- tabs */
-var TABS = ["tr", "ph", "sc", "wd", "sv"], curTab = "tr";
+var TABS = ["tr", "ph", "sc", "wd", "sv"], curTab = "tr", scanT = null;
 function tab(t) {
   if (t === curTab) { window.scrollTo({ top: 0, behavior: "smooth" }); return; }
   if (curTab === "sc" && window.HanaScan) window.HanaScan.leave();
-  if (t === "sc" && window.HanaScan) setTimeout(function () { window.HanaScan.enter(); }, 50);
+  clearTimeout(scanT);
+  if (t === "sc" && window.HanaScan) scanT = setTimeout(function () { if (curTab === "sc") window.HanaScan.enter(); }, 50);
   curTab = t;
   TABS.forEach(function (s) { $("#page-" + s).classList.toggle("active", s === t); });
   $$("#tabbar button").forEach(function (b) { b.classList.toggle("on", b.getAttribute("data-tab") === t); });
@@ -618,6 +666,7 @@ function tab(t) {
   if (t === "sv") renderSaved();
   if (t === "wd") { drawWordCats(); renderWords(); updateRing(); }
   if (t === "ph") { drawCats(); renderList(); }
+  if (t === "tr") $("#tone")._paint(S.tone);
   window.scrollTo(0, 0); vibrate(5);
 }
 $$("#tabbar button").forEach(function (b) { on(b, "click", function () { tab(b.getAttribute("data-tab")); }); });
@@ -641,5 +690,8 @@ on($("#aiSave"), "click", function () {
 renderQuick(); drawCats(); renderList(); renderRecent(); addRipples();
 setTimeout(function () { say(line("hello")); }, 900);
 loadDict();
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function () {});
+registerSW();
+if ("serviceWorker" in navigator) navigator.serviceWorker.ready.then(function () { setTimeout(checkOffline, 1500); }); else checkOffline();
+try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {} // ask the browser not to evict the offline copy
+if (/iPhone|iPad|iPod/.test(navigator.userAgent) && !standalone && $("#installHint")) $("#installHint").style.display = "";
 })();
