@@ -12,6 +12,9 @@ Open it once with internet, then **Add to Home Screen**. After that it works wit
   - `I want to eat barbecue sauce on a train` → `電車でバーベキューソースを食べたい` (densha de baabekyuusoosu o tabetai)
 - **56,000+ word dictionary** built in (JMdict), searchable offline in the Word book.
 - **Online boost:** in Auto mode it also asks Google Translate when you have signal and shows both results.
+- **📸 Menu scanner:** aim the camera at a menu (or pick a photo). It straightens the photo, reads the Japanese **offline** (tesseract.js OCR, horizontal and vertical text), matches every dish against a built-in dictionary of ~270 Japanese dishes and drinks, and shows English names, descriptions, ingredients, allergen tags and prices — also as labels right on the photo. Set "Warn me about" (pork, shellfish, nuts…) and risky dishes get flagged. "Order this" shows a big これをください card for the staff.
+  - **✨ AI perfect scan (optional):** paste your own Claude API key in Settings and menus are read by Claude Opus 5.5 (handwriting, fancy fonts, full ingredient lists). Billed to your key (~$0.05/scan); the key never leaves your phone except to call the API.
+- **Hana:** a cheeky onee-san mascot (switchable to 🌸 Sweet in Settings) who reacts to everything you do.
 - **Phrasebook:** Basics, Food & Ordering, Clothes & Shopping, Colors, Getting Around, Hanging Out, Numbers & Money, Konbini, Hotel, Nightlife, Emergency.
 - **Word book + flashcards** with spaced repetition. Add any word or translation to your own list.
 - 🔊 pronunciation, 🎤 voice input, 🖥 big "show to staff" screen, ⭐ favourites, history.
@@ -21,10 +24,14 @@ Open it once with internet, then **Add to Home Screen**. After that it works wit
 |---|---|
 | `index.html`, `css/app.css`, `js/app.js` | the app UI |
 | `js/engine.js` | offline translation engine (browser + Node) |
+| `js/scan.js`, `js/food.js` | menu scanner + Japanese dish/ingredient dictionary |
+| `vendor/tesseract/` | tesseract.js 7 + Japanese (horizontal & vertical) OCR data, served locally so scanning works offline |
+| `vendor/anthropic/` | bundled `@anthropic-ai/sdk` 0.129.0 (ESM) for the optional AI scan |
 | `data/dict.json` | generated dictionary (JMdict + `data/core.tsv` overrides) |
 | `data/core.tsv` | hand-picked everyday word choices — edit this to improve translations |
 | `scripts/build_dict.py` | rebuilds `data/dict.json` from the `jamdict-data` PyPI package's JMdict DB |
 | `tests/engine.test.js` | sample sentences (`node tests/engine.test.js all`) |
+| `tests/scan.e2e.js` | scanner end-to-end test on 3 sample menus (needs Playwright + `python3 -m http.server 8765`) |
 | `sw.js`, `manifest.json`, `icons/`, `img/hana.svg` | offline caching, install info, icons, mascot |
 
 Rebuild the dictionary after editing `data/core.tsv`:
@@ -34,4 +41,6 @@ python3 scripts/build_dict.py jamdict_data-1.5/jamdict_data/jamdict.db
 ```
 
 ## Credits
+OCR: [tesseract.js](https://github.com/naptha/tesseract.js) (Apache-2.0) with Tesseract `jpn`/`jpn_vert` LSTM data (Apache-2.0).
+AI scan: [Anthropic TypeScript SDK](https://github.com/anthropics/anthropic-sdk-typescript) (MIT).
 Dictionary data: [JMdict](https://www.edrdg.org/wiki/index.php/JMdict-EDICT_Dictionary_Project) © Electronic Dictionary Research and Development Group, CC BY-SA 4.0.
