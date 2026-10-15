@@ -1,0 +1,13 @@
+<!doctype html><meta charset="utf-8"><body><img id="im" src="menu.png"><pre id="out">...</pre>
+<script src="../vendor/tesseract/tesseract.min.js"></script>
+<script>
+(async () => {
+  const t0 = performance.now();
+  const w = await Tesseract.createWorker('jpn', 1, { workerPath: '../vendor/tesseract/worker.min.js', corePath: '../vendor/tesseract/core', langPath: '../vendor/tesseract/lang', gzip: true, workerBlobURL: false });
+  const t1 = performance.now();
+  const r = await w.recognize(document.getElementById('im'), {}, { blocks: true });
+  const t2 = performance.now();
+  document.getElementById('out').textContent = JSON.stringify({ init: Math.round(t1 - t0), ocr: Math.round(t2 - t1), text: r.data.text, lines: (r.data.blocks || []).flatMap(b => b.paragraphs.flatMap(p => p.lines.map(l => [l.text.trim(), Math.round(l.confidence), l.bbox]))) });
+  window.DONE = 1;
+})().catch(e => { document.getElementById('out').textContent = 'ERR ' + e; window.DONE = 1; });
+</script>

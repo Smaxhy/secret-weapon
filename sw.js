@@ -1,6 +1,6 @@
 /* Hana service worker: app shell + dictionary cached for full offline use. */
-var VERSION = "hana-v5";
-var SHELL = ["./", "index.html", "css/app.css?v=5", "js/phrases.js?v=5", "js/words.js?v=5", "js/engine.js?v=5", "js/app.js?v=5",
+var VERSION = "hana-v6";
+var SHELL = ["./", "index.html", "css/app.css?v=6", "js/phrases.js?v=6", "js/words.js?v=6", "js/engine.js?v=6", "js/food.js?v=6", "js/app.js?v=6", "js/scan.js?v=6",
   "data/dict.json?v=5", "img/hana.svg", "manifest.json", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/favicon-64.png"];
 self.addEventListener("install", function (e) {
   e.waitUntil(caches.open(VERSION).then(function (c) { return c.addAll(SHELL); }).then(function () { return self.skipWaiting(); }));
@@ -20,7 +20,8 @@ self.addEventListener("fetch", function (e) {
   }
   if (url.origin !== location.origin) return; // translation APIs go straight to the network
   // big dictionary + images: cache-first
-  if (/\/data\/|\/icons\/|\/img\//.test(url.pathname)) {
+  // OCR engine (big, versioned files) + dictionary + images: cache-first
+  if (/\/data\/|\/icons\/|\/img\/|\/vendor\//.test(url.pathname)) {
     e.respondWith(caches.match(req).then(function (hit) {
       return hit || fetch(req).then(function (r) { var cp = r.clone(); caches.open(VERSION).then(function (c) { c.put(req, cp); }); return r; });
     }));

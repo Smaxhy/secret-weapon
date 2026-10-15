@@ -11,7 +11,7 @@ var store = {
   set: function (k, v) { try { localStorage.setItem("hana." + k, JSON.stringify(v)); } catch (e) {} }
 };
 var S = store.get("settings", {});
-var DEF = { tone: "casual", me: "俺", mode: "auto", rate: 0.9, anim: true, chat: true };
+var DEF = { tone: "casual", me: "俺", mode: "auto", rate: 0.9, anim: true, chat: true, mood: "cheeky" };
 Object.keys(DEF).forEach(function (k) { if (S[k] === undefined) S[k] = DEF[k]; });
 function saveS() { store.set("settings", S); E.opts.tone = S.tone; E.opts.me = S.me; }
 saveS();
@@ -28,7 +28,9 @@ fetch("img/hana.svg").then(function (r) { return r.text(); }).then(function (t) 
 }).catch(function () {});
 var bubbleT = null;
 function say(jp, en, force) {
-  if (jp && typeof jp === "object") { force = en; en = jp[1]; jp = jp[0]; }
+  var ex = "";
+  if (jp && typeof jp === "object") { force = en; en = jp[1]; ex = jp[2] || ""; jp = jp[0]; }
+  if (jp && (S.chat || force)) face(ex);
   if (!jp || (!S.chat && !force)) return;
   var b = $("#bubble");
   b.innerHTML = esc(jp) + (en ? "<small>" + esc(en) + "</small>" : "");
@@ -36,8 +38,55 @@ function say(jp, en, force) {
   var av = $("#mascotBtn"); av.classList.remove("happy"); void av.offsetWidth; av.classList.add("happy");
   clearTimeout(bubbleT); bubbleT = setTimeout(function () { b.classList.remove("show"); }, 2800);
 }
-var LINES = [["やっほー！", "Heyy! Ready to translate?"], ["何でも聞いて！", "Ask me anything!"], ["日本楽しんでね！", "Enjoy Japan!"], ["ラーメン食べた？", "Had ramen yet?"], ["オフラインでも任せて💪", "I work offline too!"], ["単語帳で練習しよ！", "Practice in the word book!"], ["ガンバ！", "You got this!"]];
-on($("#mascotBtn"), "click", function () { var l = LINES[Math.floor(Math.random() * LINES.length)]; say(l[0], l[1], true); sparkle($("#mascotBtn")); vibrate(10); });
+/* Hana's lines: [jp, en, expression] — "cheeky" = teasing onee-san, "sweet" = wholesome */
+var LINES = {
+  cheeky: {
+    hello: [["あら、いらっしゃい♡", "Ara ara~ welcome back, cutie♡", "wink"], ["待ってたわよ♡", "Took you long enough~ I missed you♡", "wink"], ["今日はどこに連れてってくれるの？", "So… where are you taking me today? 😏", ""]],
+    tap: [["ちょっと、どこ触ってるの？😳", "H-hey! Where do you think you're poking?! 😳", "fluster"], ["もう…エッチ♡", "Mou~ you're such a perv♡", "wink"], ["お姉さんに任せなさい♡", "Leave everything to onee-san~♡", "wink"], ["そんなに見つめないで…照れるでしょ", "Stop staring like that… you'll make me blush", "fluster"],
+      ["バカ！翻訳しに来ただけよ！", "B-baka! I'm only here to translate!", "fluster"], ["日本の夜は長いわよ♡", "Japanese nights are long~ pace yourself♡", "wink"], ["欲しいのは翻訳？それとも…私？", "Do you want a translation… or me? 😏", "wink"], ["ふふっ、可愛い反応♡", "Fufu~ cute reaction♡", ""]],
+    poked: [["触りすぎ！お触り禁止よ💢", "That's enough touching, pervert! 💢 Hands off the merchandise!", "fluster"], ["次触ったら有料よ♡", "Next touch costs ¥1000~♡", "wink"]],
+    translate: [["はい、どうぞ♡ ご褒美は？", "Here you go♡ …where's my reward?", "wink"], ["簡単すぎ♡ もっと難しいのちょうだい", "Too easy♡ give me something harder~", ""], ["お姉さん、優秀でしょ？", "Onee-san's pretty good, right?", "wink"], ["オフラインでもイケるのよ♡", "No signal? I can still do it~♡", ""]],
+    phrase: [["それ、私もよく使うわ♡", "I use that one a lot too~♡", "wink"], ["定番ね。好きよ、そういうの", "A classic. I like that~", ""]],
+    save: [["大事にしてね♡", "Treat it gently♡", "wink"], ["しまっといたわ♡", "Tucked it away for you♡", ""]],
+    right: [["天才♡ ご褒美あげちゃう", "Genius♡ you've earned a reward~", "wink"], ["賢い子、好きよ♡", "I like smart ones~♡", "wink"], ["やるじゃない♡", "Ooh, not bad at all♡", ""]],
+    wrong: [["お仕置きが必要かしら？😈", "Do you need a little punishment? 😈 …kidding, again!", "wink"], ["ドンマイ♡ 手取り足取り教えてあげる", "Don't worry♡ I'll teach you… very carefully", "wink"]],
+    scan: [["そのメニュー、見せて♡", "Show me that menu~ don't be shy♡", "wink"], ["じっとしてて…♡", "Hold still for me…♡", ""]],
+    scanDone: [["美味しそう…あなたもね😏", "Looks delicious… just like you 😏", "wink"], ["見つけた♡ 何頼む？", "Found it all♡ what are you ordering?", ""], ["お姉さんの奢り…なわけないでしょ", "Onee-san's treat? …as if~", "wink"]],
+    alcohol: [["酔わせてどうするつもり？😏", "Trying to get me drunk? 😏", "wink"], ["飲みすぎ注意よ♡", "Don't drink too much, okay?♡", ""]],
+    spicy: [["辛いの好き？…私も熱いの好き🔥", "Like it spicy? …me too 🔥", "wink"]],
+    listen: [["ちゃんと聞いてるわ♡", "I'm listening… closely♡", "wink"]],
+    loading: [["ちょっと待って、準備中♡", "Wait a sec, I'm getting ready♡", ""]]
+  },
+  sweet: {
+    hello: [["やっほー！Hanaだよ🌸", "Hi! I'm Hana — type anything, I'll translate!", ""]],
+    tap: [["何でも聞いて！", "Ask me anything!", ""], ["日本楽しんでね！", "Enjoy Japan!", "wink"], ["ラーメン食べた？", "Had ramen yet?", ""], ["オフラインでも任せて💪", "I work offline too!", ""], ["ガンバ！", "You got this!", "wink"]],
+    poked: [["くすぐったい！", "That tickles!", "fluster"]],
+    translate: [["できた！✨", "Done!", ""], ["どうぞ〜", "Here you go~", "wink"], ["オフラインでもバッチリ！", "Offline and still on it!", ""]],
+    phrase: [["フレーズ帳にあったよ！", "Found it in the phrasebook!", ""]],
+    save: [["保存したよ！", "Saved it!", "wink"]],
+    right: [["すごい！🔥", "Awesome!", "wink"], ["その調子！", "Keep it up!", ""]],
+    wrong: [["ドンマイ！", "No worries, again!", ""]],
+    scan: [["読んでみるね！", "Let me read it!", ""]],
+    scanDone: [["見つけたよ！", "Found the dishes!", "wink"]],
+    alcohol: [["乾杯！🍻", "Cheers!", "wink"]],
+    spicy: [["辛いの注意！🌶", "Careful, spicy!", ""]],
+    listen: [["聞いてるよ…", "Listening…", ""]],
+    loading: [["辞書を読み込み中…", "Loading my dictionary, one sec!", ""]]
+  }
+};
+function line(ev) { var set = LINES[S.mood] || LINES.cheeky, arr = set[ev] || LINES.sweet[ev] || [["", ""]]; return arr[Math.floor(Math.random() * arr.length)]; }
+var faceT = null;
+function face(ex, ms) {
+  $$(".mascot").forEach(function (m) { m.classList.remove("wink", "fluster"); if (ex) m.classList.add(ex); });
+  clearTimeout(faceT); if (ex) faceT = setTimeout(function () { $$(".mascot").forEach(function (m) { m.classList.remove("wink", "fluster"); }); }, ms || 2600);
+}
+var taps = [];
+on($("#mascotBtn"), "click", function () {
+  var now = Date.now(); taps = taps.filter(function (t) { return now - t < 3500; }); taps.push(now);
+  var av = $("#mascotBtn");
+  if (taps.length >= 4) { taps = []; say(line("poked"), true); av.classList.remove("shake"); void av.offsetWidth; av.classList.add("shake"); vibrate([20, 40, 20]); return; }
+  say(line("tap"), true); sparkle(av, 8, S.mood === "cheeky" ? ["💋", "💖", "✨", "😳"] : ["✨", "🌸", "💖", "⭐"]); vibrate(10);
+});
 
 /* ---------------------------------------------------------------- fx */
 function ripple(e) {
@@ -241,7 +290,7 @@ function translate() {
   if (hit) {
     var other = S.tone === "casual" ? hit.pol : hit.cas;
     show({ src: "phrase", jp: jpOf(hit), ro: roOf(hit), en: hit.en, alt: other !== jpOf(hit) ? { label: S.tone === "casual" ? "Polite" : "Casual", jp: other } : null, words: wordsFor(text, isJ) });
-    say(pick([["フレーズ帳にあったよ！", "Found it in the phrasebook!"], ["これ使えるよ〜", "This one's handy!"]]));
+    say(line("phrase"));
     return;
   }
   var off = null;
@@ -263,9 +312,9 @@ function translate() {
       show(res2, !!offRes);
     });
   } else if (!off && !E.ready()) {
-    say("辞書を読み込み中…", "Loading my dictionary, one sec!");
+    say(line("loading"));
   } else {
-    say(pick([["オフラインでもバッチリ！", "Offline and still on it!"], ["できた！✨", "Done!"], ["どうぞ〜", "Here you go~"]]));
+    say(line("translate"));
   }
 }
 function offlineFail() { $("#result").className = "glass card result"; $("#result").innerHTML = '<p class="empty-note">Couldn\'t translate that one. Try the Phrases tab or simpler words.</p>'; }
@@ -316,7 +365,7 @@ function act(a, btn) {
   if (a === "say") { if (isJ) speak(last.en, "en-US"); else speak(last.jp); }
   if (a === "show") showBig(last.jp, last.ro, last.en);
   if (a === "copy") { var t = isJ ? last.en : last.jp; if (navigator.clipboard) navigator.clipboard.writeText(t).then(function () { toast("Copied 📋"); }, function () { toast("Copy failed"); }); btn.classList.add("done"); }
-  if (a === "fav") { addFav({ jp: last.jp, en: last.en, ro: last.ro || "" }); btn.classList.add("done"); btn.textContent = "⭐ Saved"; sparkle(btn, 6, ["⭐", "✨"]); say("保存したよ！", "Saved it!"); }
+  if (a === "fav") { addFav({ jp: last.jp, en: last.en, ro: last.ro || "" }); btn.classList.add("done"); btn.textContent = "⭐ Saved"; sparkle(btn, 6, ["⭐", "✨"]); say(line("save")); }
   if (a === "book") { addMyWord({ jp: last.jp, en: last.en, ro: last.ro || "" }); btn.classList.add("done"); btn.textContent = "📒 Added"; sparkle(btn, 6, ["📒", "✨"]); }
 }
 
@@ -340,7 +389,7 @@ on($("#mic"), "click", function () {
   if (rec) { rec.stop(); return; }
   rec = new SR(); rec.lang = dir === "en-ja" ? "en-US" : "ja-JP"; rec.interimResults = true;
   $("#mic").classList.add("rec"); vibrate(15);
-  say(dir === "en-ja" ? "聞いてるよ…" : "聞いてるよ…", dir === "en-ja" ? "Listening (English)…" : "Listening (Japanese)…");
+  say(line("listen"));
   rec.onresult = function (e) { var t = ""; for (var i = 0; i < e.results.length; i++) t += e.results[i][0].transcript; $("#inp").value = t; autosize(); if (e.results[e.results.length - 1].isFinal) translate(); };
   rec.onend = function () { $("#mic").classList.remove("rec"); rec = null; };
   rec.onerror = function () { $("#mic").classList.remove("rec"); rec = null; };
@@ -381,7 +430,7 @@ on($("#wsShow"), "click", function () { if (wordCur) { sheet(null); showBig(word
 on($("#wsAdd"), "click", function () { if (wordCur) { addMyWord(wordCur); $("#wsAdd").textContent = "✅ Added"; sparkle($("#wsAdd"), 6, ["📒", "✨"]); } });
 
 /* settings */
-on($("#settingsBtn"), "click", function () { sheet("#settings"); setTimeout(function () { $("#setTone")._paint(S.tone); $("#setMode")._paint(S.mode); }, 60); });
+on($("#settingsBtn"), "click", function () { sheet("#settings"); setTimeout(function () { $("#setTone")._paint(S.tone); $("#setMode")._paint(S.mode); if ($("#setMood")._paint) $("#setMood")._paint(S.mood); }, 60); });
 on($("#closeSettings"), "click", function () { sheet(null); });
 setupSeg($("#setTone"), S.tone, function (v) { S.tone = v; saveS(); $("#tone")._paint(v); renderList(); });
 setupSeg($("#setMode"), S.mode, function (v) { S.mode = v; saveS(); toast(v === "offline" ? "Offline engine only ⚡" : "Auto: offline + online 🌐"); });
@@ -525,8 +574,8 @@ function grade(ok) {
   var box = store.get("boxes", {}), b = box[card.jp] || 0;
   box[card.jp] = ok ? Math.min(4, b + 1) : 0; store.set("boxes", box);
   var f = $("#flash"); f.classList.add(ok ? "out-r" : "out-l");
-  if (ok) { streak++; if (streak % 3 === 0) { sparkle(f, 12); say(pick([["すごい！🔥", streak + " in a row!"], ["天才！", "Genius!"], ["その調子！", "Keep it up!"]])); } }
-  else { streak = 0; if (Math.random() < 0.4) say("ドンマイ！", "No worries, again!"); }
+  if (ok) { streak++; if (streak % 3 === 0) { sparkle(f, 12); say(line("right")); } }
+  else { streak = 0; if (Math.random() < 0.5) say(line("wrong")); }
   vibrate(ok ? 12 : 25);
   setTimeout(nextCard, 330);
 }
@@ -557,9 +606,11 @@ function renderRecent() {
 on($("#clrH"), "click", function () { store.set("hist", []); renderSaved(); renderRecent(); });
 
 /* ---------------------------------------------------------------- tabs */
-var TABS = ["tr", "ph", "wd", "sv"], curTab = "tr";
+var TABS = ["tr", "ph", "sc", "wd", "sv"], curTab = "tr";
 function tab(t) {
   if (t === curTab) { window.scrollTo({ top: 0, behavior: "smooth" }); return; }
+  if (curTab === "sc" && window.HanaScan) window.HanaScan.leave();
+  if (t === "sc" && window.HanaScan) setTimeout(function () { window.HanaScan.enter(); }, 50);
   curTab = t;
   TABS.forEach(function (s) { $("#page-" + s).classList.toggle("active", s === t); });
   $$("#tabbar button").forEach(function (b) { b.classList.toggle("on", b.getAttribute("data-tab") === t); });
@@ -572,9 +623,23 @@ function tab(t) {
 $$("#tabbar button").forEach(function (b) { on(b, "click", function () { tab(b.getAttribute("data-tab")); }); });
 $$("[data-goto]").forEach(function (b) { on(b, "click", function () { tab(b.getAttribute("data-goto")); }); });
 
+/* ---------------------------------------------------------------- shared API for the scanner */
+window.HanaUI = {
+  say: say, line: line, toast: toast, speak: speak, sparkle: sparkle, addFav: addFav, addMyWord: addMyWord,
+  showBig: function (jp, ro, en) { var r = ro; if (!r && E.ready()) { var x = E.jaToEn(jp); r = x ? x.ro : ""; } showBig(jp, r, en); },
+  translateText: function (t) { tab("tr"); $("#inp").value = t; autosize(); translate(); },
+  settings: function () { return S; }
+};
+setupSeg($("#setMood"), S.mood, function (v) { S.mood = v; saveS(); say(line("hello"), true); });
+$("#aiKey").value = store.get("claudeKey", "");
+on($("#aiSave"), "click", function () {
+  var k = $("#aiKey").value.trim(); store.set("claudeKey", k);
+  toast(k ? "✨ AI scan ready" : "AI key removed"); if (window.HanaScan) window.HanaScan.refreshAI();
+});
+
 /* ---------------------------------------------------------------- boot */
 renderQuick(); drawCats(); renderList(); renderRecent(); addRipples();
-setTimeout(function () { say("やっほー！Hanaだよ🌸", "Hi! I'm Hana — type anything, I'll translate!"); }, 900);
+setTimeout(function () { say(line("hello")); }, 900);
 loadDict();
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function () {});
 })();

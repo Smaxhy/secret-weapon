@@ -1,0 +1,57 @@
+<!doctype html><meta charset="utf-8"><body><pre id="out">...</pre><div id="dbg"></div>
+<script src="../vendor/tesseract/tesseract.min.js"></script>
+<script>
+const Q = new URLSearchParams(location.search);
+function loadImg(src) { return new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = src; }); }
+function binarize(img, scale) {
+  const c = document.createElement('canvas'); c.width = Math.round(img.width * scale); c.height = Math.round(img.height * scale);
+  const g = c.getContext('2d'); g.drawImage(img, 0, 0, c.width, c.height);
+  const W = c.width, H = c.height, d = g.getImageData(0, 0, W, H), p = d.data, gray = new Float32Array(W * H);
+  for (let i = 0; i < W * H; i++) gray[i] = (p[i * 4] * 299 + p[i * 4 + 1] * 587 + p[i * 4 + 2] * 114) / 1000;
+  const I = new Float64Array((W + 1) * (H + 1));
+  for (let y = 0; y < H; y++) { let row = 0; for (let x = 0; x < W; x++) { row += gray[y * W + x]; I[(y + 1) * (W + 1) + x + 1] = I[y * (W + 1) + x + 1] + row; } }
+  const r = Math.round(Math.max(W, H) / 40), ink = new Uint8Array(W * H);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const x0 = Math.max(0, x - r), x1 = Math.min(W - 1, x + r), y0 = Math.max(0, y - r), y1 = Math.min(H - 1, y + r);
+    const cnt = (x1 - x0 + 1) * (y1 - y0 + 1), sum = I[(y1 + 1) * (W + 1) + x1 + 1] - I[y0 * (W + 1) + x1 + 1] - I[(y1 + 1) * (W + 1) + x0] + I[y0 * (W + 1) + x0];
+    ink[y * W + x] = gray[y * W + x] * cnt < sum * 0.88 ? 1 : 0;
+  }
+  return { W, H, ink };
+}
+function runs(arr, minVal, maxGap, minLen) {
+  const out = []; let s = -1, last = -1;
+  for (let i = 0; i < arr.length; i++) { if (arr[i] > minVal) { if (s < 0) s = i; last = i; } else if (s >= 0 && i - last > maxGap) { if (last - s + 1 >= minLen) out.push([s, last]); s = -1; } }
+  if (s >= 0 && last - s + 1 >= minLen) out.push([s, last]);
+  return out;
+}
+function canvasFromInk(B, x0, y0, x1, y1) { // white bg black ink
+  const w = x1 - x0 + 1, h = y1 - y0 + 1, c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'), d = g.createImageData(w, h);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const v = B.ink[(y + y0) * B.W + x + x0] ? 0 : 255, i = (y * w + x) * 4; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 255; }
+  g.putImageData(d, 0, 0); return c;
+}
+(async () => {
+  const img = await loadImg(Q.get('img'));
+  const B = binarize(img, 1);
+  const colSum = new Float32Array(B.W); for (let x = 0; x < B.W; x++) { let s = 0; for (let y = 0; y < B.H; y++) s += B.ink[y * B.W + x]; colSum[x] = s; }
+  const cols = runs(colSum, 1, 6, 12);
+  const wH = await Tesseract.createWorker('jpn', 1, { workerPath: '../vendor/tesseract/worker.min.js', corePath: '../vendor/tesseract/core', langPath: '../vendor/tesseract/lang', gzip: true, workerBlobURL: false });
+  const wV = await Tesseract.createWorker('jpn_vert', 1, { workerPath: '../vendor/tesseract/worker.min.js', corePath: '../vendor/tesseract/core', langPath: '../vendor/tesseract/lang', gzip: true, workerBlobURL: false });
+  await wH.setParameters({ tessedit_pageseg_mode: '7' }); await wV.setParameters({ tessedit_pageseg_mode: '5' });
+  const out = ['cols ' + JSON.stringify(cols)];
+  for (const [x0, x1] of cols.reverse()) {
+    const bw = x1 - x0 + 1;
+    const rowSum = new Float32Array(B.H); for (let y = 0; y < B.H; y++) { let s = 0; for (let x = x0; x <= x1; x++) s += B.ink[y * B.W + x]; rowSum[y] = s; }
+    // character cells: merge gaps smaller than 18% of column width
+    const cells = runs(rowSum, 0, Math.round(bw * 0.18), 2);
+    // merge tiny cells (parts of one char) when combined height <= 1.1 * width
+    const merged = []; for (const c of cells) { const prev = merged[merged.length - 1]; if (prev && (c[1] - prev[0]) <= bw * 1.1 && (prev[1] - prev[0] < bw * 0.7 || c[1] - c[0] < bw * 0.7)) prev[1] = c[1]; else merged.push([c[0], c[1]]); }
+    const pad = Math.round(bw * 0.25), cw = bw + pad;
+    const line = document.createElement('canvas'); line.width = merged.length * cw + pad * 2; line.height = bw + pad * 2; const lg = line.getContext('2d'); lg.fillStyle = '#fff'; lg.fillRect(0, 0, line.width, line.height);
+    merged.forEach((m, i) => { const ch = canvasFromInk(B, x0, m[0], x1, m[1]); const h = m[1] - m[0] + 1; lg.drawImage(ch, pad + i * cw, pad + (bw - h) / 2); });
+    const r1 = await wH.recognize(line); const colCanvas = canvasFromInk(B, Math.max(0, x0 - 6), 0, Math.min(B.W - 1, x1 + 6), B.H - 1); const r2 = await wV.recognize(colCanvas);
+    out.push('col ' + x0 + '-' + x1 + ' chars=' + merged.length + ' | H: ' + r1.data.text.trim().replace(/\s+/g, '') + ' [' + Math.round(r1.data.confidence) + '] | V: ' + r2.data.text.trim().replace(/\s+/g, '') + ' [' + Math.round(r2.data.confidence) + ']');
+    if (Q.get('dbg')) { line.style.border = '1px solid red'; document.getElementById('dbg').appendChild(line); }
+  }
+  document.getElementById('out').textContent = out.join('\n'); window.DONE = 1;
+})().catch(e => { document.getElementById('out').textContent = 'ERR ' + e.stack; window.DONE = 1; });
+</script>

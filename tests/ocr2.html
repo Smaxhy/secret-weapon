@@ -1,0 +1,59 @@
+<!doctype html><meta charset="utf-8"><body><pre id="out">...</pre>
+<script src="../vendor/tesseract/tesseract.min.js"></script>
+<script>
+const Q = new URLSearchParams(location.search);
+function loadImg(src) { return new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = src; }); }
+function skewAngle(img) {
+  const S = 500 / Math.max(img.width, img.height), W = Math.round(img.width * S), H = Math.round(img.height * S);
+  const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d'); g.drawImage(img, 0, 0, W, H);
+  const p = g.getImageData(0, 0, W, H).data, gray = new Float32Array(W * H);
+  for (let i = 0; i < W * H; i++) gray[i] = (p[i * 4] * 299 + p[i * 4 + 1] * 587 + p[i * 4 + 2] * 114) / 1000;
+  // dark pixels that are darker than their local neighbourhood = ink
+  const pts = [];
+  for (let y = 2; y < H - 2; y++) for (let x = 2; x < W - 2; x++) { const v = gray[y * W + x]; const m = (gray[y * W + x - 2] + gray[y * W + x + 2] + gray[(y - 2) * W + x] + gray[(y + 2) * W + x]) / 4; if (m - v > 25) pts.push(x, y); }
+  let best = 0, bestScore = -1;
+  for (let a = -10; a <= 10; a += 0.5) {
+    const r = a * Math.PI / 180, sn = Math.sin(r), cs = Math.cos(r), bins = new Float32Array(H * 2);
+    for (let i = 0; i < pts.length; i += 2) { const yy = Math.round(pts[i + 1] * cs - pts[i] * sn + H / 2); if (yy >= 0 && yy < bins.length) bins[yy]++; }
+    let sc = 0; for (let i = 1; i < bins.length; i++) { const d = bins[i] - bins[i - 1]; sc += d * d; }
+    if (sc > bestScore) { bestScore = sc; best = a; }
+  }
+  return best;
+}
+function prep(img, opt) {
+  if (opt.deskew) { opt.rot = -skewAngle(img); window.ANG = opt.rot; }
+  const s = Math.max(1, (opt.min || 1400) / Math.max(img.width, img.height));
+  const c = document.createElement('canvas'); c.width = img.width * s; c.height = img.height * s;
+  const g = c.getContext('2d');
+  if (opt.rot) { g.translate(c.width / 2, c.height / 2); g.rotate(opt.rot * Math.PI / 180); g.translate(-c.width / 2, -c.height / 2); }
+  g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+  const d = g.getImageData(0, 0, c.width, c.height), p = d.data;
+  if (opt.mode === 'gray' || opt.mode === 'bin' || opt.mode === 'adapt') {
+    for (let i = 0; i < p.length; i += 4) { const y = (p[i] * 299 + p[i + 1] * 587 + p[i + 2] * 114) / 1000; p[i] = p[i + 1] = p[i + 2] = y; }
+  }
+  if (opt.mode === 'adapt') { // local mean threshold (Bradley)
+    const W = c.width, H = c.height, I = new Float64Array((W + 1) * (H + 1));
+    for (let y = 0; y < H; y++) { let row = 0; for (let x = 0; x < W; x++) { row += p[(y * W + x) * 4]; I[(y + 1) * (W + 1) + x + 1] = I[y * (W + 1) + x + 1] + row; } }
+    const r = Math.round(Math.max(W, H) / 40), t = 0.12, out = new Uint8ClampedArray(W * H);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const x0 = Math.max(0, x - r), x1 = Math.min(W - 1, x + r), y0 = Math.max(0, y - r), y1 = Math.min(H - 1, y + r);
+      const cnt = (x1 - x0 + 1) * (y1 - y0 + 1), sum = I[(y1 + 1) * (W + 1) + x1 + 1] - I[y0 * (W + 1) + x1 + 1] - I[(y1 + 1) * (W + 1) + x0] + I[y0 * (W + 1) + x0];
+      out[y * W + x] = p[(y * W + x) * 4] * cnt < sum * (1 - t) ? 0 : 255;
+    }
+    for (let i = 0; i < W * H; i++) p[i * 4] = p[i * 4 + 1] = p[i * 4 + 2] = out[i];
+  }
+  g.putImageData(d, 0, 0); return c;
+}
+(async () => {
+  const img = await loadImg(Q.get('img'));
+  const w = await Tesseract.createWorker(Q.get('lang') || 'jpn', 1, { workerPath: '../vendor/tesseract/worker.min.js', corePath: '../vendor/tesseract/core', langPath: '../vendor/tesseract/lang', gzip: true, workerBlobURL: false });
+  const res = [];
+  for (const cfg of JSON.parse(Q.get('cfgs'))) {
+    await w.setParameters({ tessedit_pageseg_mode: String(cfg.psm || 3) });
+    const t0 = performance.now(); const r = await w.recognize(prep(img, cfg), {}, { blocks: true });
+    const lines = (r.data.blocks || []).flatMap(b => b.paragraphs.flatMap(p => p.lines.map(l => Q.get('words') ? l.words.map(w => w.text + '(' + Math.round(w.confidence) + ')').join(' ') : l.text.trim().replace(/\s+/g, '') + '[' + Math.round(l.confidence) + ']')));
+    res.push(JSON.stringify(cfg) + ' ang=' + (window.ANG||0) + ' ' + Math.round(performance.now() - t0) + 'ms\n  ' + lines.join('\n  '));
+  }
+  document.getElementById('out').textContent = res.join('\n'); window.DONE = 1;
+})().catch(e => { document.getElementById('out').textContent = 'ERR ' + e; window.DONE = 1; });
+</script>

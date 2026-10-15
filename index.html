@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/app.css?v=5">
+<link rel="stylesheet" href="css/app.css?v=6">
 <script>
 window.onerror = function (m, s, l) {
   var e = document.getElementById("err");
@@ -86,6 +86,38 @@ window.onerror = function (m, s, l) {
     <div id="list" class="list"></div>
   </section>
 
+  <!-- SCAN -->
+  <section class="page" id="page-sc" data-tab="sc">
+    <h2 class="page-title">Menu scanner <span class="jp">メニュー</span></h2>
+    <div class="cam" id="cam">
+      <video id="video" playsinline muted autoplay></video>
+      <img id="shot" alt="">
+      <div class="ar" id="ar"></div>
+      <div class="cam-frame"><i></i><i></i><i></i><i></i></div>
+      <div class="laser"></div>
+      <div class="cam-msg" id="camMsg">Tap the shutter to start the camera</div>
+      <div class="cam-progress"><i id="scanFill"></i></div>
+      <button class="retake" id="retake" style="display:none">↺ New scan</button>
+    </div>
+    <div class="cam-controls">
+      <button class="round" id="upBtn" aria-label="Pick a photo"><svg viewBox="0 0 24 24" width="22" height="22"><rect x="3" y="5" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="10" r="1.8" fill="currentColor"/><path d="M5 17l5-5 4 4 2-2 3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button>
+      <button class="shutter" id="shutter" aria-label="Scan"><i></i></button>
+      <button class="round" id="torchBtn" aria-label="Flashlight" style="visibility:hidden"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M8 3h8l-1 6H9zM9 9h6v4l-1.5 8h-3L9 13z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="scan-opts">
+      <div class="pills" id="scanDir"><button data-v="auto">Auto</button><button data-v="h">横 Horizontal</button><button data-v="v">縦 Vertical</button></div>
+      <button class="cchip small ai" id="aiChip" style="display:none">✨ AI</button>
+    </div>
+    <div class="avoid-wrap"><span class="mut small">Warn me about:</span><div class="avoid" id="avoid"></div></div>
+    <div id="scanResults" class="list"></div>
+    <div class="glass card scan-help">
+      <b>📸 Tips for a perfect scan</b>
+      <p class="mut">Fill the frame with the menu, avoid glare, hold still. Works on printed menus offline; handwritten or fancy fonts read best with ✨ AI scan (Settings).</p>
+      <button class="btn ghost block" id="prefetchOCR">⬇ Make the scanner work offline (~6 MB)</button>
+    </div>
+    <input type="file" id="fileIn" accept="image/*" hidden>
+  </section>
+
   <!-- WORDS -->
   <section class="page" id="page-wd" data-tab="wd">
     <h2 class="page-title">Word book <span class="jp">単語帳</span></h2>
@@ -125,6 +157,7 @@ window.onerror = function (m, s, l) {
   <i class="tab-ind" id="tabInd"></i>
   <button data-tab="tr" class="on"><svg viewBox="0 0 24 24"><path d="M4 5h9M8.5 3v2M6 5c0 4 3 7 6 8M11 5c0 3-3 7-7 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M13 21l4-9 4 9M14.5 18h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Translate</span></button>
   <button data-tab="ph"><svg viewBox="0 0 24 24"><path d="M4 6a2 2 0 0 1 2-2h12v14H6a2 2 0 0 0-2 2z M4 20V6M8 8h6M8 11h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Phrases</span></button>
+  <button data-tab="sc" class="scan-tab"><svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="2"/></svg><span>Scan</span></button>
   <button data-tab="wd"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="13" height="15" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 3h11a2 2 0 0 1 2 2v12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Words</span></button>
   <button data-tab="sv"><svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 16.8 6.6 19.7l1.1-6.1L3.2 9.4l6.1-.8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span>Saved</span></button>
 </nav>
@@ -150,6 +183,8 @@ window.onerror = function (m, s, l) {
   <h3>Settings</h3>
   <div class="set"><span>Speaking style<small>How Hana talks for you</small></span>
     <div class="seg small" id="setTone"><i class="seg-thumb"></i><button data-v="casual">Casual</button><button data-v="polite">Polite</button></div></div>
+  <div class="set"><span>Hana's personality<small>Cheeky onee-san or sweet & wholesome</small></span>
+    <div class="seg small" id="setMood"><i class="seg-thumb"></i><button data-v="cheeky">😏 Cheeky</button><button data-v="sweet">🌸 Sweet</button></div></div>
   <div class="set"><span>How you say "I"<small>Used when "I" can't be dropped</small></span>
     <div class="pills" id="setMe"><button data-v="俺">俺</button><button data-v="僕">僕</button><button data-v="私">私</button><button data-v="うち">うち</button></div></div>
   <div class="set"><span>Translation engine<small>Offline always works. Auto also asks the internet when you're online.</small></span>
@@ -157,6 +192,8 @@ window.onerror = function (m, s, l) {
   <label class="set"><span>Voice speed<small id="rateTxt">0.9×</small></span><input type="range" id="setRate" min="0.5" max="1.3" step="0.1"></label>
   <label class="set"><span>Animations<small>Petals, sparkles and motion</small></span><input type="checkbox" class="switch" id="setAnim"></label>
   <label class="set"><span>Hana's reactions<small>Speech bubbles from the mascot</small></span><input type="checkbox" class="switch" id="setChat"></label>
+  <div class="set info"><span>✨ AI perfect menu scan <small>Optional. Paste your own Claude API key (console.anthropic.com) and photos of menus are read by Claude Opus 5.5 — handwriting, fancy fonts, vertical text, full ingredient lists. About $0.05 per scan, billed to your key. The key is stored only on this phone.</small></span>
+    <div class="keyrow"><input type="password" id="aiKey" placeholder="sk-ant-…" autocomplete="off"><button class="btn ghost" id="aiSave">Save</button></div></div>
   <div class="set info"><span>Offline dictionary<small id="dictInfo">loading…</small></span></div>
   <div class="set info"><span>Install<small>iPhone: Share → <b>Add to Home Screen</b>. Android: menu → <b>Install app</b>. It then opens like a real app, even offline.</small></span></div>
   <div class="row gap"><button class="btn ghost grow" id="resetBtn">Reset saved data</button><button class="btn grad grow" id="closeSettings">Done</button></div>
@@ -173,9 +210,11 @@ window.onerror = function (m, s, l) {
 <div id="toast"></div>
 <div id="loader"><div class="ld-bar"><i id="ldFill"></i></div><span id="ldTxt">Loading dictionary…</span></div>
 
-<script src="js/phrases.js?v=5"></script>
-<script src="js/words.js?v=5"></script>
-<script src="js/engine.js?v=5"></script>
-<script src="js/app.js?v=5"></script>
+<script src="js/phrases.js?v=6"></script>
+<script src="js/words.js?v=6"></script>
+<script src="js/engine.js?v=6"></script>
+<script src="js/food.js?v=6"></script>
+<script src="js/app.js?v=6"></script>
+<script src="js/scan.js?v=6"></script>
 </body>
 </html>
