@@ -433,3 +433,5 @@ body.calm .aurora, body.calm #sakura { display: none; }
   .actions > * + *, .cam-controls > * + *, .row > * + * { margin-left: 8px; }
   .cam-controls > * + * { margin-left: 34px; }
 }
+/* header avatar removed on request */
+#mascotBtn { display: none; }
