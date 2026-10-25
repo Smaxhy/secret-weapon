@@ -435,3 +435,5 @@ body.calm .aurora, body.calm #sakura { display: none; }
 }
 /* header avatar removed on request */
 #mascotBtn { display: none; }
+/* mascot pictures and speech bubbles removed on request */
+[data-mascot], .empty-state .mascot, #bubble { display: none !important; }

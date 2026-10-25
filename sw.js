@@ -1,12 +1,12 @@
 /* Hana service worker: app shell + dictionary + scanner engine cached for full offline use. */
-var VERSION = "hana-v8";        // app shell: bump with the ?v= numbers in index.html
+var VERSION = "hana-v9";        // app shell: bump with the ?v= numbers in index.html
 var DATA = "hana-data-6";       // dictionary: bump with data/dict.json?v=
 var OCR = "hana-ocr-1";         // scanner engine + language data (~10 MB): survives app updates, bump only when vendor/ changes
 var FONTS = "hana-fonts-1";
 var KEEP = [VERSION, DATA, OCR, FONTS];
 var DICT = "data/dict.json?v=6";
 var FONT_CSS = "https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap";
-var SHELL = ["./", "index.html", "css/app.css?v=8", "js/phrases.js?v=7", "js/words.js?v=7", "js/engine.js?v=7", "js/food.js?v=7", "js/app.js?v=7", "js/scan.js?v=7",
+var SHELL = ["./", "index.html", "css/app.css?v=9", "js/phrases.js?v=7", "js/words.js?v=7", "js/engine.js?v=7", "js/food.js?v=7", "js/app.js?v=7", "js/scan.js?v=7",
   "img/hana.svg?v=7", "manifest.json", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/favicon-64.png"];
 
 function put(name, req, res) { return caches.open(name).then(function (c) { return c.put(req, res); }).catch(function () {}); }
