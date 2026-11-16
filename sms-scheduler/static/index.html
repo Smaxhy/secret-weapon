@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Client Texts</title>
+<style>
+  :root {
+    --bg: #f6f5f1; --card: #ffffff; --ink: #1d2327; --muted: #667079;
+    --line: #dedbd2; --accent: #1f6f5c; --accent-ink: #ffffff;
+    --warn: #a4521a; --bad: #b3261e; --good: #1f6f5c; --soft: #eef3f1;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14181a; --card: #1d2326; --ink: #e8ebe9; --muted: #98a3a8;
+      --line: #313a3e; --accent: #58b79f; --accent-ink: #0d1614;
+      --warn: #e0a06a; --bad: #f08a80; --good: #58b79f; --soft: #232c2f;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 24px 16px 80px; }
+  h1 { font-size: 1.6rem; margin: 0 0 4px; }
+  h2 { font-size: 1.1rem; margin: 0 0 12px; }
+  .sub { color: var(--muted); margin: 0 0 20px; }
+  section { background: var(--card); border: 1px solid var(--line);
+    border-radius: 12px; padding: 18px; margin-bottom: 16px; }
+  .step { display: inline-block; width: 26px; height: 26px; line-height: 26px;
+    text-align: center; border-radius: 50%; background: var(--accent);
+    color: var(--accent-ink); font-weight: 600; font-size: .85rem; margin-right: 8px; }
+  label { display: block; font-size: .85rem; color: var(--muted); margin: 10px 0 4px; }
+  input, select, textarea { width: 100%; padding: 9px 10px; font: inherit;
+    color: var(--ink); background: var(--bg); border: 1px solid var(--line);
+    border-radius: 8px; }
+  textarea { min-height: 110px; resize: vertical; }
+  input[type=checkbox] { width: auto; margin-right: 8px; }
+  .check { display: flex; align-items: flex-start; color: var(--ink);
+    font-size: .95rem; margin-top: 12px; }
+  .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px; }
+  button { font: inherit; padding: 9px 16px; border-radius: 8px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--card); color: var(--ink); }
+  button.primary { background: var(--accent); color: var(--accent-ink);
+    border-color: var(--accent); font-weight: 600; }
+  button.small { padding: 4px 10px; font-size: .85rem; }
+  button:disabled { opacity: .5; cursor: default; }
+  .actions { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .item { border-top: 1px solid var(--line); padding: 10px 0; display: flex;
+    justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .item:first-child { border-top: 0; }
+  .muted { color: var(--muted); font-size: .88rem; }
+  .note { background: var(--soft); border-radius: 8px; padding: 10px 12px;
+    font-size: .9rem; margin-top: 12px; }
+  .err { color: var(--bad); margin-top: 10px; font-size: .92rem; }
+  .ok { color: var(--good); margin-top: 10px; font-size: .92rem; }
+  .bar { height: 8px; border-radius: 4px; background: var(--soft); overflow: hidden;
+    margin: 6px 0; min-width: 160px; }
+  .bar i { display: block; height: 100%; background: var(--accent); }
+  .pill { font-size: .75rem; padding: 2px 8px; border-radius: 99px;
+    border: 1px solid var(--line); color: var(--muted); }
+  .bubble { background: var(--soft); border-radius: 14px; padding: 8px 12px;
+    margin-top: 8px; white-space: pre-wrap; font-size: .92rem; }
+  .tablewrap { overflow-x: auto; margin-top: 10px; }
+  table { border-collapse: collapse; width: 100%; font-size: .85rem; }
+  td, th { text-align: left; padding: 5px 8px; border-top: 1px solid var(--line);
+    white-space: nowrap; }
+  details summary { cursor: pointer; color: var(--muted); font-size: .9rem; }
+  code { background: var(--soft); padding: 1px 5px; border-radius: 4px;
+    font-size: .85em; word-break: break-all; }
+  .hide { display: none; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Client Texts</h1>
+  <p class="sub">Upload your client list, write one message, and it goes out
+    from your own phones a little at a time through the day.</p>
+
+  <section>
+    <h2><span class="step">1</span>Your phones</h2>
+    <div id="senders"></div>
+    <details id="addPhone">
+      <summary>Connect a phone</summary>
+      <div class="row">
+        <div><label>Type</label>
+          <select id="sKind">
+            <option value="android">Android phone (SMS Gateway app)</option>
+            <option value="twilio">Twilio number</option>
+            <option value="dry_run">Practice mode (sends nothing)</option>
+          </select></div>
+        <div><label>Nickname</label><input id="sLabel" placeholder="Sam's phone"></div>
+        <div><label>Texts per day limit</label>
+          <input id="sCap" type="number" value="100" min="1" max="1000"></div>
+      </div>
+      <div id="fAndroid">
+        <label>Address shown in the app</label>
+        <input id="sUrl" value="https://api.sms-gate.app/3rdparty/v1">
+        <div class="row">
+          <div><label>Username</label><input id="sUser" autocomplete="off"></div>
+          <div><label>Password</label>
+            <input id="sPass" type="password" autocomplete="new-password"></div>
+        </div>
+        <div class="note">Install <b>SMS Gateway for Android</b> on the phone, switch
+          on <b>Cloud server</b>, and copy the username and password it shows.
+          Texts go out from that phone's own number and plan. iPhones can't do
+          this — Apple doesn't let apps send texts on their own.</div>
+      </div>
+      <div id="fTwilio" class="hide">
+        <div class="row">
+          <div><label>Account SID</label><input id="tSid" autocomplete="off"></div>
+          <div><label>Auth Token</label>
+            <input id="tTok" type="password" autocomplete="new-password"></div>
+          <div><label>Twilio number</label><input id="tFrom" placeholder="(555) 123-4567"></div>
+        </div>
+      </div>
+      <div class="actions"><button class="primary" id="sAdd">Connect phone</button></div>
+      <div id="sMsg"></div>
+    </details>
+  </section>
+
+  <section>
+    <h2><span class="step">2</span>Client list and message</h2>
+    <label>Client list (CSV with a <b>phone</b> column; <b>name</b> and anything
+      else is optional)</label>
+    <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+    <label>Message</label>
+    <textarea id="tpl" placeholder="Hi {first_name}, it's Sam from Acme. Your appointment is confirmed for this week."></textarea>
+    <div class="muted" id="cols">Use {first_name}, {name} or any column from your
+      file in curly brackets.</div>
+    <div id="preview"></div>
+  </section>
+
+  <section>
+    <h2><span class="step">3</span>Schedule</h2>
+    <div class="row">
+      <div><label>Name for this send</label><input id="cName" placeholder="November reminders"></div>
+      <div><label>Start sending at</label><input id="cStart" type="time" value="09:00" min="08:00" max="21:00"></div>
+      <div><label>Finish by</label><input id="cEnd" type="time" value="19:00" min="08:00" max="21:00"></div>
+      <div><label>Time zone</label><select id="tz"></select></div>
+    </div>
+    <label class="check"><input type="checkbox" id="footer" checked>
+      Add "Reply STOP to opt out." to each text</label>
+    <label class="check"><input type="checkbox" id="consent">
+      Everyone on this list is my client and agreed to get texts from me</label>
+    <div class="actions"><button class="primary" id="go">Schedule texts</button></div>
+    <div id="goMsg"></div>
+    <div class="note">Texts only go out between 8am and 9pm. If today's window has
+      passed, the send starts tomorrow. Keep this app running while it sends.</div>
+  </section>
+
+  <section>
+    <h2>Sends</h2>
+    <div id="campaigns"><span class="muted">Nothing scheduled yet.</span></div>
+    <div id="detail"></div>
+  </section>
+
+  <section>
+    <h2>Do-not-text list</h2>
+    <p class="muted">Anyone here is always skipped. People who reply STOP are added
+      automatically once the phone's webhook is set up (see the README).</p>
+    <div class="row">
+      <div><input id="oPhone" placeholder="(555) 123-4567"></div>
+      <div><button id="oAdd">Add number</button></div>
+    </div>
+    <div id="oMsg"></div>
+    <div id="optouts"></div>
+    <details style="margin-top:12px"><summary>Webhook address for STOP replies</summary>
+      <p class="muted">Your public address for this app, followed by:
+        <code id="hook"></code></p></details>
+  </section>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+let csvText = '', S = null, openCampaign = null, previewTimer = null;
+
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g,
+    c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+async function api(path, body) {
+  const r = await fetch(path, body === undefined ? {} : {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(body)});
+  const j = await r.json().catch(() => ({error: 'Unexpected response'}));
+  if (!r.ok) throw new Error(j.error || 'Something went wrong');
+  return j;
+}
+function show(el, text, ok) {
+  el.className = ok ? 'ok' : 'err';
+  el.textContent = text;
+}
+function when(ts) {
+  return new Date(ts * 1000).toLocaleString([], {
+    timeZone: S.timezone, weekday: 'short', hour: 'numeric', minute: '2-digit'});
+}
+
+function renderState() {
+  $('senders').innerHTML = S.senders.length ? S.senders.map(s => `
+    <div class="item">
+      <div><b>${esc(s.label)}</b> <span class="pill">${
+        {android: 'Android', twilio: 'Twilio', dry_run: 'Practice'}[s.kind]}</span>
+        <div class="muted">${s.sent_today} of ${s.daily_cap} sent today</div></div>
+      <div>
+        <button class="small" data-test="${s.id}">Send test</button>
+        <button class="small" data-del="${s.id}">Remove</button>
+      </div>
+    </div>`).join('') : '<p class="muted">No phones connected yet.</p>';
+  if (!S.senders.length) $('addPhone').open = true;
+
+  if (!$('tz').options.length) {
+    $('tz').innerHTML = S.timezones.map(z =>
+      `<option value="${z}">${z.split('/')[1].replace('_', ' ')}</option>`).join('');
+  }
+  $('tz').value = S.timezone;
+  $('hook').textContent = S.webhook_path;
+
+  $('campaigns').innerHTML = S.campaigns.length ? S.campaigns.map(c => {
+    const n = c.counts, total = Object.values(n).reduce((a, b) => a + b, 0);
+    const sent = n.sent || 0, pct = total ? Math.round(sent / total * 100) : 0;
+    const bits = [`${sent} of ${total} sent`];
+    if (n.failed) bits.push(`${n.failed} failed`);
+    if (n.skipped) bits.push(`${n.skipped} skipped`);
+    if (c.status === 'scheduled' && c.next) bits.push(`next at ${when(c.next)}`);
+    const btn = [];
+    if (c.status === 'scheduled') btn.push(`<button class="small" data-act="pause" data-id="${c.id}">Pause</button>`);
+    if (c.status === 'paused') btn.push(`<button class="small" data-act="resume" data-id="${c.id}">Resume</button>`);
+    if (c.status === 'scheduled' || c.status === 'paused') btn.push(`<button class="small" data-act="cancel" data-id="${c.id}">Cancel</button>`);
+    if (n.failed) btn.push(`<button class="small" data-act="retry" data-id="${c.id}">Retry failed</button>`);
+    btn.push(`<button class="small" data-view="${c.id}">Details</button>`);
+    return `<div class="item"><div style="flex:1">
+        <b>${esc(c.name)}</b> <span class="pill">${c.status}</span>
+        <div class="bar"><i style="width:${pct}%"></i></div>
+        <div class="muted">${bits.join(' · ')}</div></div>
+      <div>${btn.join(' ')}</div></div>`;
+  }).join('') : '<span class="muted">Nothing scheduled yet.</span>';
+
+  $('optouts').innerHTML = S.optouts.map(o => `
+    <div class="item"><div>${esc(o.phone)} <span class="muted">${esc(o.reason)}</span></div>
+    <button class="small" data-unopt="${esc(o.phone)}">Remove</button></div>`).join('');
+}
+
+async function refresh() {
+  try { S = await api('/api/state'); renderState(); if (openCampaign) loadDetail(); }
+  catch (e) { /* server restarting; try again on the next tick */ }
+}
+
+async function loadDetail() {
+  const rows = await api(`/api/campaigns/${openCampaign}/messages`);
+  $('detail').innerHTML = `<div class="tablewrap"><table>
+    <tr><th>Time</th><th>Client</th><th>Phone</th><th>From</th><th>Status</th></tr>
+    ${rows.map(m => `<tr><td>${when(m.sent_at || m.scheduled_at)}</td>
+      <td>${esc(m.name)}</td><td>${esc(m.phone)}</td><td>${esc(m.sender || '—')}</td>
+      <td>${esc(m.status)}${m.error ? ' — ' + esc(m.error) : ''}</td></tr>`).join('')}
+    </table></div>`;
+}
+
+async function preview() {
+  if (!csvText) { $('preview').innerHTML = ''; return; }
+  try {
+    const p = await api('/api/preview', {csv: csvText, template: $('tpl').value});
+    $('cols').textContent = 'Available: ' + p.columns.map(c => `{${c}}`).join('  ');
+    $('preview').innerHTML = `
+      <div class="${p.count ? 'ok' : 'err'}">${p.count} client${p.count === 1 ? '' : 's'} ready to text${
+        p.opted_out ? `, ${p.opted_out} on the do-not-text list` : ''}.</div>
+      ${p.samples.map(s => `<div class="bubble"><span class="muted">To ${esc(s.phone)}</span>\n${esc(s.text)}</div>`).join('')}
+      ${p.problems.length ? `<details><summary>${p.problems.length} row(s) skipped</summary>
+        <div class="muted">${p.problems.map(esc).join('<br>')}</div></details>` : ''}`;
+  } catch (e) { $('preview').innerHTML = `<div class="err">${esc(e.message)}</div>`; }
+}
+
+$('file').onchange = async e => {
+  const f = e.target.files[0];
+  csvText = f ? await f.text() : '';
+  preview();
+};
+$('tpl').oninput = () => { clearTimeout(previewTimer); previewTimer = setTimeout(preview, 400); };
+
+$('sKind').onchange = () => {
+  const k = $('sKind').value;
+  $('fAndroid').classList.toggle('hide', k !== 'android');
+  $('fTwilio').classList.toggle('hide', k !== 'twilio');
+};
+$('sAdd').onclick = async () => {
+  const k = $('sKind').value;
+  const body = {kind: k, label: $('sLabel').value, daily_cap: $('sCap').value};
+  if (k === 'android') Object.assign(body, {url: $('sUrl').value,
+    username: $('sUser').value, password: $('sPass').value});
+  if (k === 'twilio') Object.assign(body, {username: $('tSid').value,
+    password: $('tTok').value, from_number: $('tFrom').value});
+  try {
+    await api('/api/senders', body);
+    show($('sMsg'), 'Phone connected. Use "Send test" to check it.', true);
+    ['sLabel', 'sUser', 'sPass', 'tSid', 'tTok', 'tFrom'].forEach(i => $(i).value = '');
+    refresh();
+  } catch (e) { show($('sMsg'), e.message); }
+};
+
+$('go').onclick = async () => {
+  if (!csvText) return show($('goMsg'), 'Choose your client list file first.');
+  $('go').disabled = true;
+  try {
+    const r = await api('/api/campaigns', {
+      name: $('cName').value, csv: csvText, template: $('tpl').value,
+      start: $('cStart').value, end: $('cEnd').value,
+      footer: $('footer').checked, consent_confirmed: $('consent').checked});
+    const fmt = iso => new Date(iso).toLocaleString([], {timeZone: S.timezone,
+      weekday: 'short', hour: 'numeric', minute: '2-digit'});
+    show($('goMsg'), `${r.count} texts scheduled between ${fmt(r.start)} and ${fmt(r.end)}.`, true);
+    $('consent').checked = false;
+    refresh();
+  } catch (e) { show($('goMsg'), e.message); }
+  $('go').disabled = false;
+};
+
+$('tz').onchange = async () => {
+  await api('/api/settings', {timezone: $('tz').value}); refresh();
+};
+$('oAdd').onclick = async () => {
+  try { await api('/api/optouts', {phone: $('oPhone').value});
+    $('oPhone').value = ''; $('oMsg').textContent = ''; refresh(); }
+  catch (e) { show($('oMsg'), e.message); }
+};
+
+document.addEventListener('click', async e => {
+  const d = e.target.dataset;
+  try {
+    if (d.del) {
+      if (!confirm('Remove this phone? Texts still waiting on it will fail.')) return;
+      await api(`/api/senders/${d.del}/delete`, {});
+    } else if (d.test) {
+      const to = prompt('Send a test text to which number?');
+      if (!to) return;
+      await api(`/api/senders/${d.test}/test`, {to});
+      alert('Test handed to the phone. It should arrive in a moment.');
+    } else if (d.act) {
+      if (d.act === 'cancel' && !confirm('Cancel the texts that have not gone out yet?')) return;
+      await api(`/api/campaigns/${d.id}/${d.act}`, {});
+    } else if (d.view) {
+      openCampaign = openCampaign == d.view ? null : d.view;
+      if (!openCampaign) $('detail').innerHTML = '';
+    } else if (d.unopt) {
+      await api('/api/optouts', {phone: d.unopt, remove: true});
+    } else return;
+    refresh();
+  } catch (err) { alert(err.message); }
+});
+
+refresh();
+setInterval(refresh, 5000);
+</script>
+</body>
+</html>
